@@ -13,7 +13,7 @@ let KapowStore = {
         },
 
         set(key, param, successCallback, failureCallback) {
-            kapow.gameStore.set(key, JSON.stringify(param), function () {
+            kapow.gameStore.set(key, param, function () {
                 console.log("Storing gameStore " + key + " data was successful :", param);
                 successCallback && successCallback();
             }, function (error) {
@@ -35,7 +35,7 @@ let KapowStore = {
         },
 
         set(key, param, successCallback, failureCallback) {
-            kapow.roomStore.set(key, JSON.stringify(param), function () {
+            kapow.roomStore.set(key, param, function () {
                 console.log("Storing gameStore " + key + " data was successful :", param);
                 successCallback && successCallback();
             }, function (error) {

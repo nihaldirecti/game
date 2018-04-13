@@ -40,7 +40,12 @@ const GAME_CONST = {
 
     KICK_DAMAGE : [75, 150, 225],
 
-    SWORD_DAMAGE : [100, 200, 300]
+    SWORD_DAMAGE : [100, 200, 300],
+
+    STORE_KEYS: {
+        RPG_ELEMENTS : "rpg_elements"
+    }
+
 };
 
 export default GAME_CONST;

@@ -2,6 +2,7 @@
 
 import PlayButton from "../objects/widgets/buttons/PlayButton";
 import GAME_CONST from "../const/GAME_CONST";
+import gameInfo from "../objects/Store/GameInfo";
 
 var WebFontConfig = {
     active: function () {
@@ -218,14 +219,10 @@ export class Preload {
     }
 
     _getRPGStats() {
-        var RPG_elements = {
-            health : 1,
-            x_index : 0,
-            y_index : 0,
-            fist_index : 0,
-            kick_index : 0,
-            sword_index : 0
-        };
-        return RPG_elements;
+        return gameInfo.rpgElements;
+    }
+
+    _setRPGStats(value) {
+        gameInfo.rpgElements = value;
     }
 }
