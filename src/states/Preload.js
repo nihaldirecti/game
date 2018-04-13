@@ -21,10 +21,45 @@ export class Preload {
         this.load.image('player', 'assets/sprites/phaser-dude.png');
         this.load.image('enemy', 'assets/sprites/phaser-dude.png');
         this.load.image('button', 'assets/images/playGame.png', 193, 71);
+        this.load.image('leftButton', 'assets/images/arrow_left.png');
+        this.load.image('rightButton', 'assets/images/arrow_right.png');
         this.load.spritesheet('bg', 'assets/images/asteroid_burned.png');
+        this.load.atlas('xbox360', 'assets/images/xbox360.png', 'assets/controller/xbox360.json');
     }
 
     create() {
+
+        //add gamepad
+        this.imageA = this.game.add.image(500, 300, 'xbox360', '360_A');
+        this.imageB = this.game.add.image(600, 200, 'xbox360', '360_B');
+        this.imageX = this.game.add.image(400, 200, 'xbox360', '360_X');
+        this.imageY = this.game.add.image(500, 100, 'xbox360', '360_Y');
+
+        this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'leftButton', this._controller_clicked, this, 2, 1, 0);
+        this.leftButton.name = "leftButton";
+        this.leftButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.leftButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+        this.rightButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (2 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'rightButton', this._controller_clicked, this, 2, 1, 0);
+        this.rightButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.rightButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        // this.leftButton = this.game.add.image(100, 100, 'leftButton');
+        // this.rightButton = this.game.add.image(300, 100, 'rightButton');
+        this.game.stage.addChild(this.leftButton);
+        this.game.stage.addChild(this.rightButton);
+        this.leftButton.anchor.setTo(0.5, 0.5);
+        this.rightButton.anchor.setTo(0.5, 0.5);
+
+        //end gamepad
+
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
         this.game.stage.backgroundColor = '#787878';
@@ -68,6 +103,18 @@ export class Preload {
         this.game.camera.follow(this.p);
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
+        this.game.input.gamepad.start();
+    }
+
+    _controller_clicked(button) {
+        console.log(button);
+        if (button.name == "leftButton") {
+            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
+        else if (this.name == "rightButton") {
+            console.log("WE are right" + button.name);
+            this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
     }
 
     update() {
@@ -108,6 +155,13 @@ export class Preload {
             this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         else if (this.cursors.right.isDown) {
+            this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
+
+        if (this.leftButton.isPressed) {
+            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
+        if (this.rightButton.isPressed) {
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         this.check_n_spawn_enemy();
@@ -219,12 +273,12 @@ export class Preload {
 
     _getRPGStats() {
         var RPG_elements = {
-            health : 1,
-            x_index : 0,
-            y_index : 0,
-            fist_index : 0,
-            kick_index : 0,
-            sword_index : 0
+            health: 1,
+            x_index: 0,
+            y_index: 0,
+            fist_index: 0,
+            kick_index: 0,
+            sword_index: 0
         };
         return RPG_elements;
     }
