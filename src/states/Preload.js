@@ -10,31 +10,23 @@ var WebFontConfig = {
     }
 };
 
-export class Preload {
+var Preload = {
     preload() {
         this.boss_spawned = false;
         this.counter = 0;
         this.enemy_spawn_at = [500, 1000, 1500, 2000];
         this.is_enemy_spawned = [false, false, false, false];
-        this.is_enemy_dead = [false, false, false, false]
-        this.load.tilemap('mario', 'assets/tilemaps/maps/super_mario.json', null, Phaser.Tilemap.TILED_JSON);
-        this.load.image('tiles', 'assets/tilemaps/tiles/super_mario.png');
-        this.load.image('player', 'assets/sprites/phaser-dude.png');
-        this.load.image('enemy', 'assets/sprites/phaser-dude.png');
-        this.load.image('button', 'assets/images/playGame.png', 193, 71);
-        this.load.image('leftButton', 'assets/images/arrow_left.png');
-        this.load.image('rightButton', 'assets/images/arrow_right.png');
-        this.load.spritesheet('bg', 'assets/images/asteroid_burned.png');
-        this.load.atlas('xbox360', 'assets/images/xbox360.png', 'assets/controller/xbox360.json');
-    }
+        this.is_enemy_dead = [false, false, false, false];
+        console.log("Test", this.load);
+
+
+    },
 
     create() {
 
         //add gamepad
         this.imageA = this.game.add.image(500, 300, 'xbox360', '360_A');
         this.imageB = this.game.add.image(600, 200, 'xbox360', '360_B');
-        this.imageX = this.game.add.image(400, 200, 'xbox360', '360_X');
-        this.imageY = this.game.add.image(500, 100, 'xbox360', '360_Y');
 
         this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'leftButton', this._controller_clicked, this, 2, 1, 0);
         this.leftButton.name = "leftButton";
@@ -54,8 +46,8 @@ export class Preload {
 
         // this.leftButton = this.game.add.image(100, 100, 'leftButton');
         // this.rightButton = this.game.add.image(300, 100, 'rightButton');
-        this.game.stage.addChild(this.leftButton);
-        this.game.stage.addChild(this.rightButton);
+        // this.game.stage.addChild(this.leftButton);
+        // this.game.stage.addChild(this.rightButton);
         this.leftButton.anchor.setTo(0.5, 0.5);
         this.rightButton.anchor.setTo(0.5, 0.5);
 
@@ -79,6 +71,7 @@ export class Preload {
 
         this.layer = this.map.createLayer('World1');
         this.layer.resizeWorld();
+        // this.game.stage.addChild(this.layer);
 
         this.game.dumb_enemies = this.game.add.physicsGroup(
             Phaser.Physics.ARCADE,
@@ -93,8 +86,10 @@ export class Preload {
 
         this.p = this.game.add.sprite(32, 32, 'player');
         this.p.rpg = this._getRPGStats();
+        this.p.rpg.health = 1;
         this.enemy = [];
         this.game.physics.enable(this.p);
+        // this.game.stage.addChild(this.p);
 
         this.game.physics.arcade.gravity.y = 250;
 
@@ -105,7 +100,7 @@ export class Preload {
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
-    }
+    },
 
     _controller_clicked(button) {
         console.log(button);
@@ -116,7 +111,7 @@ export class Preload {
             console.log("WE are right" + button.name);
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
-    }
+    },
 
     update() {
         // console.log("x: " + this.p.x + " y: " + this.p.y);
@@ -187,7 +182,7 @@ export class Preload {
 
 
         }
-    }
+    },
 
     check_n_spawn_enemy() {
         if (this.p.x + 300 > this.enemy_spawn_at[this.counter] &&
@@ -195,7 +190,7 @@ export class Preload {
             this._spawn_enemy(this.counter, this.enemy_spawn_at[this.counter], 100);
             this.counter++;
         }
-    }
+    },
 
     _spawn_enemy(i, x, y) {
         this.enemy[i] = this.game.dumb_enemies.create(x, y, 'enemy');
@@ -205,33 +200,33 @@ export class Preload {
         this.enemy[i].body.linearDamping = 1;
         this.enemy[i].body.collideWorldBounds = true;
         this.enemy[i].body.velocity.x = -30;
-    }
+    },
 
     shutdown() {
-        for (let i = this.game.stage.children.length - 1; i >= 0; i--) {
-            this.game.stage.removeChild(this.game.stage.children[i]);
-        }
-    }
+        // for (let i = this.game.stage.children.length - 1; i >= 0; i--) {
+        //     this.game.stage.removeChild(this.game.stage.children[i]);
+        // }
+    },
 
 
     _createLoader() {
         this.progressBar = this.add.sprite(this.world.centerX - 360, this.world.centerY, "progressBar");
         this.progressBar.anchor.setTo(0, 0.5);
-        this.game.stage.addChild(this.progressBar);
+        // this.game.stage.addChild(this.progressBar);
         this.load.setPreloadSprite(this.progressBar);
 
         this.progressBackground = this.add.sprite(this.world.centerX, this.world.centerY, "progressBackground");
         this.progressBackground.anchor.setTo(0.5, 0.5);
-        this.game.stage.addChild(this.progressBackground);
-    }
+        // this.game.stage.addChild(this.progressBackground);
+    },
 
     _onLoadComplete() {
         this._start();
-    }
+    },
 
     _start() {
         this.loadingComplete = true;
-    }
+    },
 
     _createPlayButton() {
         this.playButtton = new PlayButton({
@@ -242,14 +237,14 @@ export class Preload {
             anchorX: 0.5,
             anchorY: 0.5
         });
-        this.game.stage.addChild(this.playButtton);
-    }
+        // this.game.stage.addChild(this.playButtton);
+    },
 
     _handle_enemy_collide(p) {
         if (p.rpg.health > 0) {
             p.rpg.health--;
         }
-    }
+    },
 
     check_n_spawn_boss() {
         if (this.p.x > GAME_CONST.COORDINATES.arena_x
@@ -257,7 +252,7 @@ export class Preload {
             this.boss_spawned = true;
             this._spawn_boss(GAME_CONST.COORDINATES.arena_x + 200, 50);
         }
-    }
+    },
 
     _spawn_boss(x, y) {
         this.boss = this.game.bosses.create(x, y, 'enemy');
@@ -270,13 +265,15 @@ export class Preload {
         this.boss.body.velocity.x = -30;
         this.boss.state = {};
         this.boss.state.val = 'moving_left';
-    }
+    },
 
     _getRPGStats() {
         return gameInfo.rpgElements;
-    }
+    },
 
     _setRPGStats(value) {
         gameInfo.rpgElements = value;
     }
-}
+};
+
+export default Preload;

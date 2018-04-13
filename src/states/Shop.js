@@ -2,18 +2,18 @@
 
 import GAME_CONST from "../const/GAME_CONST";
 
-export class Shop {
+var Shop = {
     preload() {
         console.log("Here");
 
-    }
+    },
 
     create() {
         this.background = this.game.add.tileSprite(0, 0, 800, 600, 'bg');
         this.game.stage.backgroundColor = '#182d3b';
         console.log(this);
-        var fun = this.actionOnClick.bind(this);
-        this.button1 = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'button', fun, this, 2, 1, 0);
+        // var fun = this.actionOnClick.bind(this);
+        this.button1 = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'button', this.actionOnClick, this, 2, 1, 0);
         this.button2 = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (2 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'button', this.actionOnClick, this, 2, 1, 0);
         this.button3 = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (3 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'button', this.actionOnClick, this, 2, 1, 0);
         this.button4 = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (2 / 3), 'button', this.actionOnClick, this, 2, 1, 0);
@@ -40,25 +40,26 @@ export class Shop {
         this.button1.onInputOver.add(this.over, this);
         this.button1.onInputOut.add(this.out, this);
         this.button1.onInputUp.add(this.up, this);
-    }
+    },
 
     update() {
 
-    }
+    },
 
     up() {
-    }
+    },
 
     over() {
-    }
+    },
 
     out() {
-    }
+    },
 
     actionOnClick(game) {
         console.log(this);
         console.log("HERE TOO!");
-        this.game.state.start(GAME_CONST.STATES.SHOP);
+        this.game.state.start(GAME_CONST.STATES.PRELOAD);
     }
 
-}
+};
+export default Shop;
