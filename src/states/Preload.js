@@ -14,6 +14,7 @@ export class Preload {
         this.counter = 0;
         this.enemy_spawn_at = [500, 1000, 1500, 2000];
         this.is_enemy_spawned = [false, false, false, false];
+        this.is_enemy_dead = [false, false, false, false]
         this.load.tilemap('mario', 'assets/tilemaps/maps/super_mario.json', null, Phaser.Tilemap.TILED_JSON);
         this.load.image('tiles', 'assets/tilemaps/tiles/super_mario.png');
         this.load.image('player', 'assets/sprites/phaser-dude.png');
@@ -70,10 +71,14 @@ export class Preload {
         this.game.physics.arcade.collide(this.p, this.layer);
         this.p.body.velocity.x = 0;
         for (var i = 0; i < this.enemy.length; i++) {
-            if (this.enemy[i].y > GAME_CONST.COORDINATES.y_max) {
-                console.log("enemy game over, i:" + i);
+            if (this.is_enemy_dead[i] == false) {
+                if (this.enemy[i].y > GAME_CONST.COORDINATES.enemy_y_max) {
+                    console.log("enemy game over, i:" + i);
+                    this.is_enemy_dead[i] = true;
+                    this.enemy[i].destroy();
+                }
+                this.game.physics.arcade.collide(this.enemy[i], this.layer);
             }
-            this.game.physics.arcade.collide(this.enemy[i], this.layer);
         }
         var fun = this._handle_enemy_collide.bind(this, this.p);
         this.game.physics.arcade.overlap(this.game.dumb_enemies, this.p,

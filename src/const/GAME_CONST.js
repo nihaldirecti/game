@@ -23,7 +23,8 @@ const GAME_CONST = {
         SPACE_SHIP: 0.08
     },
     COORDINATES: {
-        y_max: 170
+        y_max: 170,
+        enemy_y_max: 175
     }
 };
 
