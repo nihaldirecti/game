@@ -1,0 +1,29 @@
+'use strict';
+
+import GAME_CONST from "../../const/GAME_CONST";
+
+function GameInfo() {
+    this.room = null;
+    this.screenState = 0;
+    this.playerData = null;
+    this.gameResume = false;
+    this.gameOver = false;
+    this.gameLayoutLoaded = false;
+}
+
+GameInfo.prototype.get = function (key) {
+    return this[key];
+};
+
+GameInfo.prototype.set = function (key, val) {
+    this[key] = val;
+};
+
+GameInfo.prototype.setBulk = function (arg) {
+    for (let key in arg) {
+        this[key] = arg[key];
+    }
+};
+
+let gameInfo = new GameInfo();
+export default gameInfo;
