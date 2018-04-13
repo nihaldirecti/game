@@ -20,6 +20,8 @@ export class Preload {
         this.load.image('tiles', 'assets/tilemaps/tiles/super_mario.png');
         this.load.image('player', 'assets/sprites/phaser-dude.png');
         this.load.image('enemy', 'assets/sprites/phaser-dude.png');
+        this.load.image('button', 'assets/images/playGame.png', 193, 71);
+        this.load.spritesheet('bg', 'assets/images/asteroid_burned.png');
     }
 
     create() {
@@ -54,7 +56,7 @@ export class Preload {
         );
 
         this.p = this.game.add.sprite(32, 32, 'player');
-        this.p.health = 1;
+        this.p.rpg = this._getRPGStats();
         this.enemy = [];
         this.game.physics.enable(this.p);
 
@@ -70,8 +72,9 @@ export class Preload {
 
     update() {
         // console.log("x: " + this.p.x + " y: " + this.p.y);
-        if (this.p.health <= 0) {
+        if (this.p.rpg.health <= 0) {
             console.log("game over");
+            this.game.state.start(GAME_CONST.STATES.SHOP);
         }
         if (this.p.y > GAME_CONST.COORDINATES.y_max) {
             console.log("game over");
@@ -97,15 +100,15 @@ export class Preload {
 
         if (this.cursors.up.isDown) {
             if (this.p.body.onFloor()) {
-                this.p.body.velocity.y = -200;
+                this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             }
         }
 
         if (this.cursors.left.isDown) {
-            this.p.body.velocity.x = -150;
+            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         else if (this.cursors.right.isDown) {
-            this.p.body.velocity.x = 150;
+            this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         this.check_n_spawn_enemy();
         this.check_n_spawn_boss();
@@ -188,8 +191,8 @@ export class Preload {
     }
 
     _handle_enemy_collide(p) {
-        if (p.health > 0) {
-            p.health--;
+        if (p.rpg.health > 0) {
+            p.rpg.health--;
         }
     }
 
@@ -212,5 +215,17 @@ export class Preload {
         this.boss.body.velocity.x = -30;
         this.boss.state = {};
         this.boss.state.val = 'moving_left';
+    }
+
+    _getRPGStats() {
+        var RPG_elements = {
+            health : 1,
+            x_index : 0,
+            y_index : 0,
+            fist_index : 0,
+            kick_index : 0,
+            sword_index : 0
+        };
+        return RPG_elements;
     }
 }

@@ -9,7 +9,8 @@ const GAME_CONST = {
     STATES: {
         BOOT: "Boot",
         PRELOAD: "Preload",
-        PLAY: "Play"
+        PLAY: "Play",
+        SHOP: "Shop"
     },
     MUSIC: {
         VOLUME: {
@@ -29,7 +30,17 @@ const GAME_CONST = {
     },
     BOSS: {
         stationary_time: 3000
-    }
+    },
+    VELOCITY: {
+        x : [150, 170, 200],
+        y : [200, 250, 300]
+    },
+
+    FIST_DAMAGE : [50, 100, 150, 200],
+
+    KICK_DAMAGE : [75, 150, 225],
+
+    SWORD_DAMAGE : [100, 200, 300]
 };
 
 export default GAME_CONST;

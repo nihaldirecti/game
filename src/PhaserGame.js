@@ -4,6 +4,7 @@ import GAME_CONST from "./const/GAME_CONST";
 import {Boot} from "./states/Boot";
 import {Preload} from "./states/Preload";
 import Play from "./states/Play";
+import {Shop} from "./states/Shop";
 
 export default class PhaserGame extends Phaser.Game {
     constructor(width, height, container) {
@@ -11,5 +12,6 @@ export default class PhaserGame extends Phaser.Game {
         this.state.add(GAME_CONST.STATES.BOOT, Boot);
         this.state.add(GAME_CONST.STATES.PRELOAD, Preload);
         this.state.add(GAME_CONST.STATES.PLAY, Play);
+        this.state.add(GAME_CONST.STATES.SHOP, Shop);
     }
 }
