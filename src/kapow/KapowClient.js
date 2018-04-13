@@ -9,6 +9,28 @@ class KapowClient {
 
     handleOnLoad(room) {
         console.log("onload" + room);
+
+        var default_RPG_elements = {
+            health : 1,
+            x_index : 0,
+            y_index : 0,
+            fist_index : 0,
+            kick_index : 0,
+            sword_index : 0
+        };
+        KapowStore.game.get(GAME_CONST.STORE_KEYS.RPG_ELEMENTS, function(value) {
+            if (value) {
+                console.log("rps_elements fetch successful" + value);
+                gameInfo.rpgElements = value;
+            } else {
+                console.log("rpg_elements fetch unsuccessful");
+                gameInfo.rpgElements = default_RPG_elements;
+            }
+        }, function (error) {
+            console.log("rpg_elements fetch failed" + error);
+            gameInfo.rpgElements = default_RPG_elements;
+        });
+
         gameInfo.set("room", room);
         this._loadScreen();
     }
