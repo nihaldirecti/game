@@ -21,6 +21,9 @@ const GAME_CONST = {
         METEOR: 400,
         SHOOT: 600,
         SPACE_SHIP: 0.08
+    },
+    COORDINATES: {
+        y_max: 170
     }
 };
 

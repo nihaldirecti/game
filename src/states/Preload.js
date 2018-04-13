@@ -63,17 +63,21 @@ export class Preload {
     update() {
         if (this.p.health <= 0) {
             console.log("game over");
-        } else {
-            console.log("its:" + this.p.health);
+        }
+        if (this.p.y > GAME_CONST.COORDINATES.y_max) {
+            console.log("game over");
         }
         this.game.physics.arcade.collide(this.p, this.layer);
         this.p.body.velocity.x = 0;
         for (var i = 0; i < this.enemy.length; i++) {
+            if (this.enemy[i].y > GAME_CONST.COORDINATES.y_max) {
+                console.log("enemy game over, i:" + i);
+            }
             this.game.physics.arcade.collide(this.enemy[i], this.layer);
         }
-
+        var fun = this._handle_enemy_collide.bind(this, this.p);
         this.game.physics.arcade.overlap(this.game.dumb_enemies, this.p,
-            this._handle_enemy_collide, null, this.p);
+            fun, null, null);
 
         if (this.cursors.up.isDown) {
             if (this.p.body.onFloor()) {
@@ -146,12 +150,9 @@ export class Preload {
         this.game.stage.addChild(this.playButtton);
     }
 
-    _handle_enemy_collide(enemies, p) {
-        console.log("here");
+    _handle_enemy_collide(p) {
         if (p.health > 0) {
-            console.log("too");
             p.health--;
         }
-        console.log("new" + p.health);
     }
 }
