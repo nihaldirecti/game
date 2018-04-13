@@ -11,6 +11,7 @@ var WebFontConfig = {
 
 export class Preload {
     preload() {
+        this.boss_spawned = false;
         this.counter = 0;
         this.enemy_spawn_at = [500, 1000, 1500, 2000];
         this.is_enemy_spawned = [false, false, false, false];
@@ -46,6 +47,12 @@ export class Preload {
             this.game.map,
             'enemies'
         );
+        this.game.bosses = this.game.add.physicsGroup(
+            Phaser.Physics.ARCADE,
+            this.game.map,
+            'bosses'
+        );
+
         this.p = this.game.add.sprite(32, 32, 'player');
         this.p.health = 1;
         this.enemy = [];
@@ -62,6 +69,7 @@ export class Preload {
     }
 
     update() {
+        // console.log("x: " + this.p.x + " y: " + this.p.y);
         if (this.p.health <= 0) {
             console.log("game over");
         }
@@ -69,6 +77,9 @@ export class Preload {
             console.log("game over");
         }
         this.game.physics.arcade.collide(this.p, this.layer);
+        if (this.boss) {
+            this.game.physics.arcade.collide(this.boss, this.layer);
+        }
         this.p.body.velocity.x = 0;
         for (var i = 0; i < this.enemy.length; i++) {
             if (this.is_enemy_dead[i] == false) {
@@ -97,6 +108,27 @@ export class Preload {
             this.p.body.velocity.x = 150;
         }
         this.check_n_spawn_enemy();
+        this.check_n_spawn_boss();
+        if (this.boss_spawned) {
+            if (this.boss.x + 100 <= this.boss.init_x && this.boss.state.val == 'moving_left') {
+                this.boss.body.velocity.x = 0;
+                this.boss.state.val = 'stationary_left';
+                this.boss.state.fromTime = new Date().getTime();
+            }
+
+            if (this.boss.state.val == 'stationary_left'
+                && this.boss.state.fromTime + GAME_CONST.BOSS.stationary_time < new Date().getTime()) {
+                this.boss.state.val = 'moving_right';
+                this.boss.body.velocity.x = 30;
+            }
+
+            if (this.boss.state.val == 'moving_right' && this.boss.x >= this.boss.init_x) {
+                this.boss.state.val = 'moving_left';
+                this.boss.body.velocity.x = -30;
+            }
+
+
+        }
     }
 
     check_n_spawn_enemy() {
@@ -159,5 +191,26 @@ export class Preload {
         if (p.health > 0) {
             p.health--;
         }
+    }
+
+    check_n_spawn_boss() {
+        if (this.p.x > GAME_CONST.COORDINATES.arena_x
+            && this.boss_spawned == false) {
+            this.boss_spawned = true;
+            this._spawn_boss(GAME_CONST.COORDINATES.arena_x + 200, 50);
+        }
+    }
+
+    _spawn_boss(x, y) {
+        this.boss = this.game.bosses.create(x, y, 'enemy');
+        this.boss.init_x = x;
+        this.game.physics.enable(this.boss);
+        this.boss.body.bounce.y = 0.5;
+        this.boss.body.bounce.x = 1;
+        this.boss.body.linearDamping = 1;
+        this.boss.body.collideWorldBounds = true;
+        this.boss.body.velocity.x = -30;
+        this.boss.state = {};
+        this.boss.state.val = 'moving_left';
     }
 }

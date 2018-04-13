@@ -24,7 +24,11 @@ const GAME_CONST = {
     },
     COORDINATES: {
         y_max: 170,
-        enemy_y_max: 175
+        enemy_y_max: 175,
+        arena_x: 40//3040
+    },
+    BOSS: {
+        stationary_time: 3000
     }
 };
 
