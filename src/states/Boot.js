@@ -11,7 +11,7 @@ var Boot = {
         this.load.image('tiles', 'assets/tilemaps/tiles/super_mario.png');
         this.load.image('player', 'assets/sprites/phaser-dude.png');
         this.load.image('enemy', 'assets/sprites/phaser-dude.png');
-        this.load.image('button', 'assets/images/playGame.png', 193, 71);
+        this.load.image('button', 'assets/images/playGame.png');
         this.load.image('leftButton', 'assets/images/arrow_left.png');
         this.load.image('rightButton', 'assets/images/arrow_right.png');
         this.load.image('platform', 'assets/images/ground.png');

@@ -74,8 +74,10 @@ Preload.prototype = {
         this.game.physics.p2.enable(this.p);
         this.p.body.clearShapes();
         this.p.body.loadPolygon("mapPhysics", "phaser-dude");
-        this.game.world.gravity = [0,0];
+        this.game.physics.p2.gravity.y = 980;
         this.game.camera.follow(this.p);
+
+        this.p.body.collideWorldBounds
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
@@ -97,6 +99,10 @@ Preload.prototype = {
 
 
         console.log(this.ground);
+        setTimeout(function(){
+            this.game.state.start(GAME_CONST.STATES.SHOP);
+        }.bind(this), 10000);
+        //
     },
 
     _controller_clicked(button) {
@@ -121,26 +127,27 @@ Preload.prototype = {
             // console.log("game over");
         }
         this.p.body.velocity.x = 0;
+        // this.p.body.velocity.y = 0;
 
         if (this.cursors.up.isDown) {
             // if (this.p.body.onFloor()) {
             //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             // }
-            this.p.body.velocity.y = -10*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.y = -2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
 
         if (this.cursors.down.isDown) {
             // if (this.p.body.onFloor()) {
             //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             // }
-            this.p.body.velocity.y =  10*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.y =  2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
 
         if (this.cursors.left.isDown) {
-            this.p.body.velocity.x = -10 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.x = -10* GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         else if (this.cursors.right.isDown) {
-            this.p.body.velocity.x = 10 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.x = 10*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
 
         // this.check_n_spawn_enemy();
