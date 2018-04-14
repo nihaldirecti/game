@@ -64,16 +64,7 @@ Preload.prototype = {
         // this.map.setCollisionBetween(27, 29);
         // this.map.setCollision(40);
 
-        this.game.dumb_enemies = this.game.add.physicsGroup(
-            Phaser.Physics.ARCADE,
-            this.game.map,
-            'enemies'
-        );
-        this.game.bosses = this.game.add.physicsGroup(
-            Phaser.Physics.ARCADE,
-            this.game.map,
-            'bosses'
-        );
+
 
         this.p = this.game.add.sprite(0, 0, 'player');
         this.p.rpg = this._getRPGStats();
@@ -88,16 +79,22 @@ Preload.prototype = {
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
-        this.ground = this.game.add.tileSprite(0, 414, 7680, 666, 'platform');
-        // this.ground = this.add.sprite(0, 414 ,'platform');
+        // this.ground = this.game.add.tileSprite(0, 414, 7680, 666, 'platform');
+        this.ground = this.add.sprite(3840, 747 ,'platform', 0);
+        this.ground.anchor.setTo(0,0);
+        console.log(this.sprite);
         this.game.physics.p2.enable(this.ground);
+
         this.ground.body.clearShapes();
         this.ground.body.loadPolygon("mapPhysics", "ground");
         // this.ground.body.velocity.x = 0;
         // this.ground.body.velocity.y = 0;
         // this.ground.body.mass = 0;
-        // this.ground.body.kinematic = false;
-        // this.ground.body.gravityScale = 0;
+        // this.ground.immovable = true;
+        this.ground.body.dynamic = false;
+        this.ground.body.gravityScale = 0;
+        console.log(this.sprite);
+
 
         console.log(this.ground);
     },
@@ -123,74 +120,51 @@ Preload.prototype = {
         if (this.p.y > 1080) {
             // console.log("game over");
         }
-        this.game.physics.arcade.collide(this.p, this.layer);
-        if (this.boss) {
-            this.game.physics.arcade.collide(this.boss, this.layer);
-        }
         this.p.body.velocity.x = 0;
-        for (var i = 0; i < this.enemy.length; i++) {
-            if (this.is_enemy_dead[i] == false) {
-                if (this.enemy[i].y > GAME_CONST.COORDINATES.enemy_y_max) {
-                    console.log("enemy game over, i:" + i);
-                    this.is_enemy_dead[i] = true;
-                    this.enemy[i].destroy();
-                }
-                this.game.physics.arcade.collide(this.enemy[i], this.layer);
-            }
-        }
-        var fun = this._handle_enemy_collide.bind(this, this.p);
-        this.game.physics.arcade.overlap(this.game.dumb_enemies, this.p,
-            fun, null, null);
 
         if (this.cursors.up.isDown) {
             // if (this.p.body.onFloor()) {
             //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             // }
-            this.p.body.velocity.y = -1*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.y = -10*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
 
         if (this.cursors.down.isDown) {
             // if (this.p.body.onFloor()) {
             //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             // }
-            this.p.body.velocity.y =  GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.y =  10*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
 
         if (this.cursors.left.isDown) {
-            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.x = -10 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         else if (this.cursors.right.isDown) {
-            this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.x = 10 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
 
-        // if (this.leftButton.isPressed) {
-        //     this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        // this.check_n_spawn_enemy();
+        // this.check_n_spawn_boss();
+        // if (this.boss_spawned) {
+        //     if (this.boss.x + 100 <= this.boss.init_x && this.boss.state.val == 'moving_left') {
+        //         this.boss.body.velocity.x = 0;
+        //         this.boss.state.val = 'stationary_left';
+        //         this.boss.state.fromTime = new Date().getTime();
+        //     }
+        //
+        //     if (this.boss.state.val == 'stationary_left'
+        //         && this.boss.state.fromTime + GAME_CONST.BOSS.stationary_time < new Date().getTime()) {
+        //         this.boss.state.val = 'moving_right';
+        //         this.boss.body.velocity.x = 30;
+        //     }
+        //
+        //     if (this.boss.state.val == 'moving_right' && this.boss.x >= this.boss.init_x) {
+        //         this.boss.state.val = 'moving_left';
+        //         this.boss.body.velocity.x = -30;
+        //     }
+        //
+        //
         // }
-        // if (this.rightButton.isPressed) {
-        //     this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        // }
-        this.check_n_spawn_enemy();
-        this.check_n_spawn_boss();
-        if (this.boss_spawned) {
-            if (this.boss.x + 100 <= this.boss.init_x && this.boss.state.val == 'moving_left') {
-                this.boss.body.velocity.x = 0;
-                this.boss.state.val = 'stationary_left';
-                this.boss.state.fromTime = new Date().getTime();
-            }
-
-            if (this.boss.state.val == 'stationary_left'
-                && this.boss.state.fromTime + GAME_CONST.BOSS.stationary_time < new Date().getTime()) {
-                this.boss.state.val = 'moving_right';
-                this.boss.body.velocity.x = 30;
-            }
-
-            if (this.boss.state.val == 'moving_right' && this.boss.x >= this.boss.init_x) {
-                this.boss.state.val = 'moving_left';
-                this.boss.body.velocity.x = -30;
-            }
-
-
-        }
     },
 
     check_n_spawn_enemy() {
