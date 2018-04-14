@@ -10,7 +10,8 @@ var WebFontConfig = {
     }
 };
 
-var Preload = {
+var Preload = function() {};
+Preload.prototype = {
     preload() {
         this.boss_spawned = false;
         this.counter = 0;
@@ -27,6 +28,8 @@ var Preload = {
         //add gamepad
         this.imageA = this.game.add.image(500, 300, 'xbox360', '360_A');
         this.imageB = this.game.add.image(600, 200, 'xbox360', '360_B');
+
+
 
         this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'leftButton', this._controller_clicked, this, 2, 1, 0);
         this.leftButton.name = "leftButton";
@@ -100,6 +103,8 @@ var Preload = {
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
+        this.ground = this.add.image(0, this.game.height - 666 ,'ground');
+        console.log(this.ground);
     },
 
     _controller_clicked(button) {

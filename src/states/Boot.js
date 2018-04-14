@@ -14,6 +14,7 @@ var Boot = {
         this.load.image('button', 'assets/images/playGame.png', 193, 71);
         this.load.image('leftButton', 'assets/images/arrow_left.png');
         this.load.image('rightButton', 'assets/images/arrow_right.png');
+        this.load.image('ground', 'assets/images/ground.png');
         this.load.spritesheet('bg', 'assets/images/asteroid_burned.png');
         this.load.atlas('xbox360', 'assets/images/xbox360.png', 'assets/controller/xbox360.json');
     },
@@ -22,7 +23,7 @@ var Boot = {
         this.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
         this.scale.pageAlignHorizontally = true;
         this.scale.pageAlignVertically = true;
-        this.scale.forceOrientation(false, true);
+        this.scale.forceOrientation(true, true);
         this.input.maxPointers = 1;
         this.state.start(GAME_CONST.STATES.PRELOAD);
     }
