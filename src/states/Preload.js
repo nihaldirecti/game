@@ -91,8 +91,10 @@ export class Preload {
         );
 
         this.p = this.game.add.sprite(32, 32, 'player', 'standing/to-right');
-        this.p.animations.add('walk_left', [0, 1, 2, 3, 4, 5, 6, 7, 16]);
-        this.p.animations.add('walk_right', [8, 9, 10, 11, 12, 13, 15, 17]);
+        this.p.isFacingTowardsRight = true;
+        this.p.scale.setTo(0.2, 0.2);
+        this.p.animations.add('walk_left', [0, 1, 2, 3, 4, 5, 6, 7]);
+        this.p.animations.add('walk_right', [8, 9, 10, 11, 12, 13, 15]);
 
         this.p.rpg = this._getRPGStats();
         this.enemy = [];
@@ -152,13 +154,22 @@ export class Preload {
             }
         }
 
+        // Walking/Running
         if (this.leftButton.isPressed || this.cursors.left.isDown) {
             this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_left', 10, false);
+            this.p.isFacingTowardsRight = false;
         } else if (this.rightButton.isPressed || this.cursors.right.isDown) {
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_right', 10, false);
+            this.p.isFacingTowardsRight = true;
         }
+
+        if (this.p.body.velocity.x == 0) {
+            this.p.frame = this.p.isFacingTowardsRight ? 17 : 16;
+        }
+
+
         this.check_n_spawn_enemy();
         this.check_n_spawn_boss();
         if (this.boss_spawned) {
