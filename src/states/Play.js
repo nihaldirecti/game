@@ -1,75 +1,287 @@
 'use strict';
 
-import Planet from "../objects/widgets/sprites/Planet";
-import SpaceShip from "../objects/widgets/images/SpaceShip";
-import Shoot from "../objects/Widgets/sprites/Shoot";
 import GAME_CONST from "../const/GAME_CONST";
-import Meteor from "../objects/widgets/sprites/Meteor";
-import TextUtil from "../util/TextUtil";
 import PlayButton from "../objects/widgets/buttons/PlayButton";
+import gameInfo from "../objects/Store/GameInfo";
 
-var Play = {
+var Play = function(){}
+
+
+Play.prototype = {
 
     preload() {
-
+        this.boss_spawned = false;
+        this.counter = 0;
+        this.enemy_spawn_at = [500, 1000, 1500, 2000];
+        this.is_enemy_spawned = [false, false, false, false];
+        this.is_enemy_dead = [false, false, false, false];
+        console.log("Test", this.load);
     },
 
     create() {
-        this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
-        this.game.stage.backgroundColor = '#787878';
-        console.log(this.game);
-        this.player = this.add.image(32, 32, 'player');
-        //this.game.stage.addChild(this.player);
-        this.map = this.add.tilemap('mario');
-
-        this.map.addTilesetImage('SuperMarioBros-World1-1', 'tiles');
-
-        //  14 = ? block
-        this.map.setCollisionBetween(14, 15);
-
-        this.map.setCollisionBetween(15, 16);
-        this.map.setCollisionBetween(20, 25);
-        this.map.setCollisionBetween(27, 29);
-        this.map.setCollision(40);
-
-        this.layer = this.map.createLayer('World1');
-        this.layer.resizeWorld();
-        this.game.stage.addChild(this.layer);
+        this.game.physics.startSystem(Phaser.Physics.P2JS);
 
 
-        this.p = this.game.add.sprite(32, 32, 'player');
-        this.game.physics.enable(this.p);
+        this.game.world.setBounds(0, 0, 7680, 1080);
 
-        this.game.physics.arcade.gravity.y = 250;
+        this.p = this.game.add.sprite(0, 0, 'character');
+        this.p.rpg = this._getRPGStats();
+        this.p.rpg.health = 1;
+        this.enemy = [];
 
-        this.p.body.bounce.y = 0.5;
-        this.p.body.linearDamping = 1;
-        this.p.body.collideWorldBounds = true;
-
-        this.game.stage.addChild(this.p);
+        this.game.physics.p2.enable(this.p);
+        this.p.body.clearShapes();
+        this.p.body.loadPolygon("mapPhysics", "phaser-dude");
+        this.game.physics.p2.gravity.y = 980;
+        this.p.body.fixedRotation = true;
         this.game.camera.follow(this.p);
+        this.p.animations.add('walk_left', [8, 9, 10, 11, 12, 13, 15]);
+        this.p.animations.add('walk_right', [16, 17, 18, 19, 20, 21, 22, 23]);
+        this.p.animations.add('attack_left', [0, 1, 2, 3]);
+        this.p.animations.add('attack_right', [4, 5, 6, 7]);
+        this.p.animations.play('attack_right',10,true);
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
+        this.game.input.gamepad.start();
+        this.ground = this.add.sprite(3840, 747 ,'platform', 0);
+        this.ground.anchor.setTo(0,0);
+        console.log(this.sprite);
+        this.game.physics.p2.enable(this.ground);
+        //
+        this.ground.body.clearShapes();
+        this.ground.body.loadPolygon("mapPhysics", "ground");
+        this.ground.body.dynamic = false;
+        this.ground.body.gravityScale = 0;
+        console.log(this.sprite);
+
+
+        console.log(this.ground);
+        setTimeout(function(){
+            this.game.state.start(GAME_CONST.STATES.SHOP);
+        }.bind(this), 10000);
+    },
+
+    u_controller_clicked(button) {
+        console.log(button);
+        if (button.name == "leftButton") {
+            this.p.body.velocity.x = -1 *GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
+        else if (this.name == "rightButton") {
+            console.log("WE are right" + button.name);
+            this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
     },
 
     update() {
-        this.game.physics.arcade.collide(this.p, this.layer);
+        // console.log("x: " + this.p.x + " y: " + this.p.y);
+        this._adjustCharacterPhysicsBound();
+        this.p.y +=10;
 
+        // this.p.body.angularVelocity = 0;
+        if (this.p.rpg.health <= 0) {
+            // console.log("game over");
+            // this.game.state.start(GAME_CONST.STATES.SHOP);
+        }
+        if (this.p.y > 1080) {
+            // console.log("game over");
+        }
+        // this.p.rotation = 0;
         this.p.body.velocity.x = 0;
+        // this.p.body.velocity.y = 0;
 
         if (this.cursors.up.isDown) {
-            if (this.p.body.onFloor()) {
-                this.p.body.velocity.y = -200;
+            // if (this.p.body.onFloor()) {
+            //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
+            // }
+            this.p.body.velocity.y = -2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
+        else if (this.cursors.down.isDown) {
+            // if (this.p.body.onFloor()) {
+            //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
+            // }
+
+            // this.p.body.velocity.y =  2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            if(this.p.frame >= 8 && this.p.frame < 16) {
+                this.p.animations.play('attack_left',10,true);
+            }
+            else if(this.p.frame >= 16 && this.p.frame < 24) {
+                this.p.animations.play('attack_right',10,true);
             }
         }
 
         if (this.cursors.left.isDown) {
-            this.p.body.velocity.x = -150;
+            this.p.body.velocity.x = -2* GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.animations.play('walk_left',10,true);
         }
         else if (this.cursors.right.isDown) {
-            this.p.body.velocity.x = 150;
+            this.p.body.velocity.x = 2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.animations.play('walk_right',10,true);
         }
+
+        // if (this.cursors.sp) {
+        //     console.log(this.p.frame);
+        //     // this.p.animations.play('walk_left',10,true);
+        // }
+        // else if (this.cursors.right.isDown) {
+        //     // this.p.body.velocity.x = 2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        //     // this.p.animations.play('walk_right',10,true);
+        // }
+        // this.check_n_spawn_enemy();
+        // this.check_n_spawn_boss();
+        // if (this.boss_spawned) {
+        //     if (this.boss.x + 100 <= this.boss.init_x && this.boss.state.val == 'moving_left') {
+        //         this.boss.body.velocity.x = 0;
+        //         this.boss.state.val = 'stationary_left';
+        //         this.boss.state.fromTime = new Date().getTime();
+        //     }
+        //
+        //     if (this.boss.state.val == 'stationary_left'
+        //         && this.boss.state.fromTime + GAME_CONST.BOSS.stationary_time < new Date().getTime()) {
+        //         this.boss.state.val = 'moving_right';
+        //         this.boss.body.velocity.x = 30;
+        //     }
+        //
+        //     if (this.boss.state.val == 'moving_right' && this.boss.x >= this.boss.init_x) {
+        //         this.boss.state.val = 'moving_left';
+        //         this.boss.body.velocity.x = -30;
+        //     }
+        //
+        //
+        // }
+    },
+
+    _adjustCharacterPhysicsBound() {
+        // this.p.body.clearShapes();
+        //
+        // if (this.p.frame == "walk") {
+        //     objectName.body.loadPolygon(loadedJSONFileName, walkHitboxName);
+        // }
+        //
+        // else if (currentAnimation == "fight") {
+        //     objectName.body.loadPolygon(loadedJSONFileName, fightHitboxName);
+        // }
+        this.p.body.clearShapes();
+        switch(this.p.animations.currentAnim.currentFrame.index) {
+            case 0 :  {
+                this.p.body.loadPolygon("mapPhysics", "attack-left-1");
+                break;
+            }
+            case 1 :  {
+                this.p.body.loadPolygon("mapPhysics", "attack-left-2");
+                break;
+            }
+            case 2 :  {
+                this.p.body.loadPolygon("mapPhysics", "attack-left-3");
+                break;
+            }
+            case 3 :  {
+                this.p.body.loadPolygon("mapPhysics", "attack-left-4");
+                break;
+            }
+            case 4 :  {
+                this.p.body.loadPolygon("mapPhysics", "attack-right-1");
+                break;
+            }
+            case 5 :  {
+                this.p.body.loadPolygon("mapPhysics", "attack-right-2");
+                break;
+            }
+            case 6 :  {
+                this.p.body.loadPolygon("mapPhysics", "attack-right-3");
+                break;
+            }
+            case 7 :  {
+                this.p.body.loadPolygon("mapPhysics", "attack-right-4");
+                break;
+            }
+            case 8 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-left-1");
+                break;
+            }
+            case 9 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-left-2");
+                break;
+            }
+            case 10 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-left-3");
+                break;
+            }
+            case 11 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-left-4");
+                break;
+            }
+            case 12 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-left-5");
+                break;
+            }
+            case 13 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-left-6");
+                break;
+            }
+            case 14 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-left-7");
+                break;
+            }
+            case 15 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-left-8");
+                break;
+            }
+            case 16 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-right-1");
+                break;
+            }
+            case 17 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-right-2");
+                break;
+            }
+            case 18 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-right-3");
+                break;
+            }
+            case 19 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-right-4");
+                break;
+            }
+            case 20 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-right-5");
+                break;
+            }
+            case 21 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-right-6");
+                break;
+            }
+            case 22 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-right-7");
+                break;
+            }
+            case 23 :  {
+                this.p.body.loadPolygon("mapPhysics", "character-run-right-8");
+                break;
+            }
+            default :{
+                console.log("Can't resolve body type");
+                break;
+            }
+        }
+    },
+
+    check_n_spawn_enemy() {
+        if (this.p.x + 300 > this.enemy_spawn_at[this.counter] &&
+            this.is_enemy_spawned[this.counter] == false) {
+            this._spawn_enemy(this.counter, this.enemy_spawn_at[this.counter], 100);
+            this.counter++;
+        }
+    },
+
+    _spawn_enemy(i, x, y) {
+        this.enemy[i] = this.game.dumb_enemies.create(x, y, 'enemy');
+        this.game.physics.enable(this.enemy[i]);
+        this.enemy[i].body.bounce.y = 0.5;
+        this.enemy[i].body.bounce.x = 1;
+        this.enemy[i].body.linearDamping = 1;
+        this.enemy[i].body.collideWorldBounds = true;
+        this.enemy[i].body.velocity.x = -30;
     },
 
     shutdown() {
@@ -78,137 +290,71 @@ var Play = {
         // }
     },
 
-    _createScoreText() {
-        // this.scoreText = TextUtil.createText(this.game, {
-        //     positionX: 100,
-        //     positionY: 100,
-        //     message: this.score,
-        //     align: "center",
-        //     backgroundColor: "#000000",
-        //     fill: "#fefefe",
-        //     font: 'nunito-regular',
-        //     fontSize: "60px",
-        //     fontWeight: 800,
-        //     wordWrapWidth: 355,
-        //     anchorX: 0.5,
-        //     anchorY: 0
-        // });
-        // this.game.stage.addChild(this.scoreText);
+
+    _createLoader() {
+        this.progressBar = this.add.sprite(this.world.centerX - 360, this.world.centerY, "progressBar");
+        this.progressBar.anchor.setTo(0, 0.5);
+        // this.game.stage.addChild(this.progressBar);
+        this.load.setPreloadSprite(this.progressBar);
+
+        this.progressBackground = this.add.sprite(this.world.centerX, this.world.centerY, "progressBackground");
+        this.progressBackground.anchor.setTo(0.5, 0.5);
+        // this.game.stage.addChild(this.progressBackground);
     },
 
-    _changeScore() {
-        // this.scoreText.text = this.score;
+    _onLoadComplete() {
+        this._start();
     },
 
-    _createHealth() {
-        // this.healthMetric = 100;
-        // this.health = this.game.add.graphics(0, 0);
-        // this.game.stage.addChild(this.health);
-        // this.health.beginFill(0XFFBC3E);
-        // this.health.arc(this.world.centerX, this.world.centerY, 130, this.game.math.degToRad(-90.00),
-        //     this.game.math.degToRad(-89.9999), true, 360);
-    },
-
-    _createPlanet() {
-        // this.planet = new Planet({
-        //     game: this.game,
-        //     posX: this.world.centerX,
-        //     posY: this.world.centerY,
-        //     label: 'planet',
-        //     anchorX: 0.5,
-        //     anchorY: 0.5
-        // });
-        // this.game.stage.addChild(this.planet);
-    },
-
-    _createSpaceShip() {
-        // this.spaceShip = new SpaceShip({
-        //     game: this.game,
-        //     posX: this.world.centerX,
-        //     posY: this.world.centerY,
-        //     label: 'spaceShip',
-        //     anchorX: 0.5,
-        //     anchorY: 0.5
-        // });
-        // this.game.stage.addChild(this.spaceShip);
-    },
-
-    _changeShipDirection() {
-        // this.spaceShipThrust *= -1;
-        // this._shootProjectile();
-        // this.game.camera.shake(0.0005, 500);
-    },
-
-    _shootProjectile() {
-        // let position = this.spaceShip.previousPosition;
-        // let shoot = new Shoot({
-        //     game: this.game,
-        //     posX: position.x,
-        //     posY: position.y,
-        //     label: 'shoot',
-        //     angle: position.angle(this.centerPoint, true),
-        //     anchorX: 0.5,
-        //     anchorY: 0.5
-        // });
-        // this.projectiles.add(shoot);
-    },
-
-    _decreaseHealth() {
-        // this.health && this.health.clear();
-        // this.health && this.health.beginFill(0XFFBC3E);
-        // this.health && this.health.arc(this.world.centerX, this.world.centerY, 130, this.game.math.degToRad(-90.00),
-        //     this.game.math.degToRad(((100 - this.healthMetric) / 100.0) * 360 - 90), true, 360);
-    },
-
-    _endGame() {
-        // kapow.invokeRPC('postScore', {"score": this.score}, function () {
-        //     console.log("Success Posting Score");
-        // }, function (error) {
-        //     console.log("Failure Posting score", error);
-        // });
-        // this.gameEndText = TextUtil.createText(this.game, {
-        //     positionX: this.world.centerX,
-        //     positionY: 560,
-        //     message: "Game Over",
-        //     align: "center",
-        //     backgroundColor: "#000000",
-        //     fill: "#fefefe",
-        //     font: 'nunito-regular',
-        //     fontSize: "80px",
-        //     fontWeight: 800,
-        //     wordWrapWidth: 355,
-        //     anchorX: 0.5,
-        //     anchorY: 0
-        // });
-        // this.game.stage.addChild(this.gameEndText);
-        // this._createPlayButton();
-        // this._drawScoreboard();
+    _start() {
+        this.loadingComplete = true;
     },
 
     _createPlayButton() {
-        // this.playButtton = new PlayButton({
-        //     game: this.game,
-        //     posX: this.world.centerX,
-        //     posY: this.world.centerY,
-        //     label: 'playGame',
-        //     anchorX: 0.5,
-        //     anchorY: 0.5,
-        //     callback: this.shutdown
-        // });
+        this.playButtton = new PlayButton({
+            game: this.game,
+            posX: this.world.centerX,
+            posY: this.world.centerY,
+            label: 'playGame',
+            anchorX: 0.5,
+            anchorY: 0.5
+        });
         // this.game.stage.addChild(this.playButtton);
     },
 
-    _drawScoreboard() {
-        //     this.scoreboard = this.game.add.button(this.game.world.centerX, 1800, "scoreboard", this._renderScoreboard, this);
-        //     this.scoreboard.anchor.setTo(0.5, 0);
-        //     this.game.stage.addChild(this.scoreboard);
-        // },
-        //
-        // _renderScoreboard() {
-        //     kapow.boards.displayScoreboard({
-        //         "metric": "score",
-        //         "interval": "daily"
-        //     });
+    _handle_enemy_collide(p) {
+        if (p.rpg.health > 0) {
+            p.rpg.health--;
+        }
+    },
+
+    check_n_spawn_boss() {
+        if (this.p.x > GAME_CONST.COORDINATES.arena_x
+            && this.boss_spawned == false) {
+            this.boss_spawned = true;
+            this._spawn_boss(GAME_CONST.COORDINATES.arena_x + 200, 50);
+        }
+    },
+
+    _spawn_boss(x, y) {
+        this.boss = this.game.bosses.create(x, y, 'enemy');
+        this.boss.init_x = x;
+        this.game.physics.enable(this.boss);
+        this.boss.body.bounce.y = 0.5;
+        this.boss.body.bounce.x = 1;
+        this.boss.body.linearDamping = 1;
+        this.boss.body.collideWorldBounds = true;
+        this.boss.body.velocity.x = -30;
+        this.boss.state = {};
+        this.boss.state.val = 'moving_left';
+    },
+
+    _getRPGStats() {
+        return gameInfo.rpgElements;
+    },
+
+    _setRPGStats(value) {
+        gameInfo.rpgElements = value;
     }
 };
 export default Play;

@@ -1,0 +1,28 @@
+{"frames": [
+
+{
+	"filename": "standing-left.png",
+	"frame": {"x":0,"y":0,"w":191,"h":219},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":191,"h":219},
+	"sourceSize": {"w":191,"h":219}
+},
+{
+	"filename": "standing-right.png",
+	"frame": {"x":191,"y":0,"w":191,"h":219},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":191,"h":219},
+	"sourceSize": {"w":191,"h":219}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "standing.png",
+	"format": "RGBA8888",
+	"size": {"w":382,"h":219},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:545a0bb8ac67e4db90ce5e48f8e55c0a:a56047700df0496077eba7a6dc80f242:2ee97642ccc49e0a9a6de0b14d52efec$"
+}
+}

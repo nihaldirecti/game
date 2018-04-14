@@ -1,0 +1,76 @@
+{"frames": [
+
+{
+	"filename": "attack-left-1.png",
+	"frame": {"x":0,"y":0,"w":190,"h":218},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":190,"h":218},
+	"sourceSize": {"w":190,"h":218}
+},
+{
+	"filename": "attack-left-2.png",
+	"frame": {"x":190,"y":0,"w":203,"h":218},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":203,"h":218},
+	"sourceSize": {"w":203,"h":218}
+},
+{
+	"filename": "attack-left-3.png",
+	"frame": {"x":393,"y":0,"w":237,"h":218},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":237,"h":218},
+	"sourceSize": {"w":237,"h":218}
+},
+{
+	"filename": "attack-left-4.png",
+	"frame": {"x":630,"y":0,"w":237,"h":218},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":237,"h":218},
+	"sourceSize": {"w":237,"h":218}
+},
+{
+	"filename": "attack-right-1.png",
+	"frame": {"x":867,"y":0,"w":190,"h":218},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":190,"h":218},
+	"sourceSize": {"w":190,"h":218}
+},
+{
+	"filename": "attack-right-2.png",
+	"frame": {"x":1057,"y":0,"w":203,"h":218},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":203,"h":218},
+	"sourceSize": {"w":203,"h":218}
+},
+{
+	"filename": "attack-right-3.png",
+	"frame": {"x":1260,"y":0,"w":237,"h":218},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":237,"h":218},
+	"sourceSize": {"w":237,"h":218}
+},
+{
+	"filename": "attack-right-4.png",
+	"frame": {"x":1497,"y":0,"w":237,"h":218},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":237,"h":218},
+	"sourceSize": {"w":237,"h":218}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "attack.png",
+	"format": "RGBA8888",
+	"size": {"w":1734,"h":218},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:a479dd685f673e28bff268704e3ee7bf:eb6c04043d76fe4f7c504a57b0cc681f:c558c2d9773adf0f4ef6f0e9687f205f$"
+}
+}

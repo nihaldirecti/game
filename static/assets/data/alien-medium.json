@@ -1,0 +1,28 @@
+{"frames": [
+
+{
+	"filename": "alien-medium-1.png",
+	"frame": {"x":0,"y":0,"w":348,"h":211},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":348,"h":211},
+	"sourceSize": {"w":348,"h":211}
+},
+{
+	"filename": "alien-medium-2.png",
+	"frame": {"x":348,"y":0,"w":363,"h":211},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":363,"h":211},
+	"sourceSize": {"w":363,"h":211}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "alien-medium.png",
+	"format": "RGBA8888",
+	"size": {"w":711,"h":211},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:4d8b4b58bf9b42a2cbe1bdac4c7f0b95:131aa761d32a6ce82888a03374c5237f:fa846d851fb92855f44e5ca10b45c32f$"
+}
+}
