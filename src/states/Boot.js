@@ -8,6 +8,7 @@ Boot.prototype = {
         console.log("Preloading Boot State");
         this.load.image('progressBackground', 'assets/images/progressBackground.png');
         this.load.image('progressBar', 'assets/images/progressBar.png');
+        this.load.image('button', 'assets/images/playGame.png');
     },
 
     create() {

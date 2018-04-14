@@ -21,7 +21,6 @@ Preload.prototype = {
         this.load.onLoadComplete.addOnce(this._onLoadComplete, this);
         // this.load.image('player', 'assets/sprites/phaser-dude.png');
         // this.load.image('enemy', 'assets/sprites/phaser-dude.png');
-        this.load.image('button', 'assets/images/playGame.png');
         this.load.image('leftButton', 'assets/images/arrow_left.png');
         this.load.image('rightButton', 'assets/images/arrow_right.png');
         this.load.image('platform', 'assets/images/ground.png');
@@ -56,6 +55,13 @@ Preload.prototype = {
     },
 
     _onLoadComplete() {
+        this.progressBar.destroy();
+        this.progressBackground.destroy();
+        this.playButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH/2, GAME_CONST.CANVAS.HEIGHT/2, "button", this.startGame, this);
+        this.playButton.anchor.setTo(0.5);
+    },
+
+    startGame() {
         this.ready = true;
     }
 };
