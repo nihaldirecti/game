@@ -25,56 +25,44 @@ Preload.prototype = {
 
     create() {
 
-        //add gamepad
-        this.imageA = this.game.add.image(500, 300, 'xbox360', '360_A');
-        this.imageB = this.game.add.image(600, 200, 'xbox360', '360_B');
+        this.game.physics.startSystem(Phaser.Physics.P2JS);
+
+
+        this.game.world.setBounds(0, 0, 7680, 1080);
 
 
 
-        this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'leftButton', this._controller_clicked, this, 2, 1, 0);
-        this.leftButton.name = "leftButton";
-        this.leftButton.onInputDown.add(function (button) {
-            button.isPressed = true;
-        });
-        this.leftButton.onInputUp.add(function (button) {
-            button.isPressed = false;
-        });
-        this.rightButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (2 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'rightButton', this._controller_clicked, this, 2, 1, 0);
-        this.rightButton.onInputDown.add(function (button) {
-            button.isPressed = true;
-        });
-        this.rightButton.onInputUp.add(function (button) {
-            button.isPressed = false;
-        });
 
-        // this.leftButton = this.game.add.image(100, 100, 'leftButton');
-        // this.rightButton = this.game.add.image(300, 100, 'rightButton');
-        // this.game.stage.addChild(this.leftButton);
-        // this.game.stage.addChild(this.rightButton);
-        this.leftButton.anchor.setTo(0.5, 0.5);
-        this.rightButton.anchor.setTo(0.5, 0.5);
+        // this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'leftButton', this._controller_clicked, this, 2, 1, 0);
+        // this.leftButton.name = "leftButton";
+        // this.leftButton.onInputDown.add(function (button) {
+        //     button.isPressed = true;
+        // });
+        // this.leftButton.onInputUp.add(function (button) {
+        //     button.isPressed = false;
+        // });
+        // this.rightButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (2 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'rightButton', this._controller_clicked, this, 2, 1, 0);
+        // this.rightButton.onInputDown.add(function (button) {
+        //     button.isPressed = true;
+        // });
+        // this.rightButton.onInputUp.add(function (button) {
+        //     button.isPressed = false;
+        // });
+
+        // this.leftButton.anchor.setTo(0.5, 0.5);
+        // this.rightButton.anchor.setTo(0.5, 0.5);
 
         //end gamepad
 
-        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+        // this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
-        this.game.stage.backgroundColor = '#787878';
-        console.log(this.game);
-        this.map = this.add.tilemap('mario');
 
-        this.map.addTilesetImage('SuperMarioBros-World1-1', 'tiles');
+        // this.map.setCollisionBetween(14, 15);
 
-        //  14 = ? block
-        this.map.setCollisionBetween(14, 15);
-
-        this.map.setCollisionBetween(15, 16);
-        this.map.setCollisionBetween(20, 25);
-        this.map.setCollisionBetween(27, 29);
-        this.map.setCollision(40);
-
-        this.layer = this.map.createLayer('World1');
-        this.layer.resizeWorld();
-        // this.game.stage.addChild(this.layer);
+        // this.map.setCollisionBetween(15, 16);
+        // this.map.setCollisionBetween(20, 25);
+        // this.map.setCollisionBetween(27, 29);
+        // this.map.setCollision(40);
 
         this.game.dumb_enemies = this.game.add.physicsGroup(
             Phaser.Physics.ARCADE,
@@ -87,30 +75,37 @@ Preload.prototype = {
             'bosses'
         );
 
-        this.p = this.game.add.sprite(32, 32, 'player');
+        this.p = this.game.add.sprite(0, 0, 'player');
         this.p.rpg = this._getRPGStats();
         this.p.rpg.health = 1;
         this.enemy = [];
-        this.game.physics.enable(this.p);
-        // this.game.stage.addChild(this.p);
 
-        this.game.physics.arcade.gravity.y = 250;
-
-        this.p.body.bounce.y = 0.5;
-        this.p.body.linearDamping = 1;
-        this.p.body.collideWorldBounds = true;
+        this.game.physics.p2.enable(this.p);
+        this.p.body.clearShapes();
+        this.p.body.loadPolygon("mapPhysics", "phaser-dude");
+        this.game.world.gravity = [0,0];
         this.game.camera.follow(this.p);
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
-        this.ground = this.add.image(0, this.game.height - 666 ,'ground');
+        this.ground = this.game.add.tileSprite(0, 414, 7680, 666, 'platform');
+        // this.ground = this.add.sprite(0, 414 ,'platform');
+        this.game.physics.p2.enable(this.ground);
+        this.ground.body.clearShapes();
+        this.ground.body.loadPolygon("mapPhysics", "ground");
+        // this.ground.body.velocity.x = 0;
+        // this.ground.body.velocity.y = 0;
+        // this.ground.body.mass = 0;
+        // this.ground.body.kinematic = false;
+        // this.ground.body.gravityScale = 0;
+
         console.log(this.ground);
     },
 
     _controller_clicked(button) {
         console.log(button);
         if (button.name == "leftButton") {
-            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.x = -1 *GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         else if (this.name == "rightButton") {
             console.log("WE are right" + button.name);
@@ -120,12 +115,13 @@ Preload.prototype = {
 
     update() {
         // console.log("x: " + this.p.x + " y: " + this.p.y);
+        this.p.y +=10;
         if (this.p.rpg.health <= 0) {
-            console.log("game over");
-            this.game.state.start(GAME_CONST.STATES.SHOP);
+            // console.log("game over");
+            // this.game.state.start(GAME_CONST.STATES.SHOP);
         }
-        if (this.p.y > GAME_CONST.COORDINATES.y_max) {
-            console.log("game over");
+        if (this.p.y > 1080) {
+            // console.log("game over");
         }
         this.game.physics.arcade.collide(this.p, this.layer);
         if (this.boss) {
@@ -147,9 +143,17 @@ Preload.prototype = {
             fun, null, null);
 
         if (this.cursors.up.isDown) {
-            if (this.p.body.onFloor()) {
-                this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
-            }
+            // if (this.p.body.onFloor()) {
+            //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
+            // }
+            this.p.body.velocity.y = -1*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
+
+        if (this.cursors.down.isDown) {
+            // if (this.p.body.onFloor()) {
+            //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
+            // }
+            this.p.body.velocity.y =  GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
 
         if (this.cursors.left.isDown) {
@@ -159,12 +163,12 @@ Preload.prototype = {
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
 
-        if (this.leftButton.isPressed) {
-            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        }
-        if (this.rightButton.isPressed) {
-            this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        }
+        // if (this.leftButton.isPressed) {
+        //     this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        // }
+        // if (this.rightButton.isPressed) {
+        //     this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        // }
         this.check_n_spawn_enemy();
         this.check_n_spawn_boss();
         if (this.boss_spawned) {

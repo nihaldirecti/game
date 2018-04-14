@@ -24,9 +24,9 @@ const GAME_CONST = {
         SPACE_SHIP: 0.08
     },
     COORDINATES: {
-        y_max: 170,
-        enemy_y_max: 175,
-        arena_x: 40//3040
+        y_max: 1080,
+        enemy_y_max: 1080,
+        arena_x: 1920//3040
     },
     BOSS: {
         stationary_time: 3000
