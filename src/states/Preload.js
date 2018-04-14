@@ -19,13 +19,13 @@ export class Preload {
         this.is_enemy_dead = [false, false, false, false]
         this.load.tilemap('mario', 'assets/tilemaps/maps/super_mario.json', null, Phaser.Tilemap.TILED_JSON);
         this.load.image('tiles', 'assets/tilemaps/tiles/super_mario.png');
-        this.load.image('player', 'assets/sprites/phaser-dude.png');
         this.load.image('enemy', 'assets/sprites/phaser-dude.png');
         this.load.image('button', 'assets/images/playGame.png', 193, 71);
         this.load.image('leftButton', 'assets/images/arrow_left.png');
         this.load.image('rightButton', 'assets/images/arrow_right.png');
         this.load.spritesheet('bg', 'assets/images/asteroid_burned.png');
         this.load.atlas('xbox360', 'assets/images/xbox360.png', 'assets/controller/xbox360.json');
+        this.load.atlasJSONArray('player', 'assets/sprites/running.png', 'assets/sprites/running.json');
     }
 
     create() {
@@ -64,7 +64,6 @@ export class Preload {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
         this.game.stage.backgroundColor = '#787878';
-        console.log(this.game);
         this.map = this.add.tilemap('mario');
 
         this.map.addTilesetImage('SuperMarioBros-World1-1', 'tiles');
@@ -91,7 +90,10 @@ export class Preload {
             'bosses'
         );
 
-        this.p = this.game.add.sprite(32, 32, 'player');
+        this.p = this.game.add.sprite(32, 32, 'player', 'standing/to-right');
+        this.p.animations.add('walk_left', [0, 1, 2, 3, 4, 5, 6, 7, 16]);
+        this.p.animations.add('walk_right', [8, 9, 10, 11, 12, 13, 15, 17]);
+
         this.p.rpg = this._getRPGStats();
         this.enemy = [];
         this.game.physics.enable(this.p);
@@ -108,14 +110,12 @@ export class Preload {
     }
 
     _controller_clicked(button) {
-        console.log(button);
-        if (button.name == "leftButton") {
-            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        }
-        else if (this.name == "rightButton") {
-            console.log("WE are right" + button.name);
-            this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        }
+        // if (button.name == "leftButton") {
+        //     this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        // }
+        // else if (this.name == "rightButton") {
+        //     this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        // }
     }
 
     update() {
@@ -152,18 +152,12 @@ export class Preload {
             }
         }
 
-        if (this.cursors.left.isDown) {
+        if (this.leftButton.isPressed || this.cursors.left.isDown) {
             this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        }
-        else if (this.cursors.right.isDown) {
+            this.p.animations.play('walk_left', 10, false);
+        } else if (this.rightButton.isPressed || this.cursors.right.isDown) {
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        }
-
-        if (this.leftButton.isPressed) {
-            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        }
-        if (this.rightButton.isPressed) {
-            this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.animations.play('walk_right', 10, false);
         }
         this.check_n_spawn_enemy();
         this.check_n_spawn_boss();
