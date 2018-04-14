@@ -4,7 +4,8 @@ import GAME_CONST from "../const/GAME_CONST";
 import PlayButton from "../objects/widgets/buttons/PlayButton";
 import gameInfo from "../objects/Store/GameInfo";
 
-var Play = function(){}
+var Play = function () {
+}
 
 
 Play.prototype = {
@@ -33,19 +34,19 @@ Play.prototype = {
         this.game.physics.p2.enable(this.p);
         this.p.body.clearShapes();
         this.p.body.loadPolygon("mapPhysics", "phaser-dude");
-        this.game.physics.p2.gravity.y = 980;
+        this.game.physics.p2.gravity.y = 4900;
         this.p.body.fixedRotation = true;
         this.game.camera.follow(this.p);
         this.p.animations.add('walk_left', [8, 9, 10, 11, 12, 13, 15]);
         this.p.animations.add('walk_right', [16, 17, 18, 19, 20, 21, 22, 23]);
         this.p.animations.add('attack_left', [0, 1, 2, 3]);
         this.p.animations.add('attack_right', [4, 5, 6, 7]);
-        this.p.animations.play('attack_right',10,true);
+        this.p.animations.play('attack_right', 10, true);
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
-        this.ground = this.add.sprite(3840, 747 ,'platform', 0);
-        this.ground.anchor.setTo(0,0);
+        this.ground = this.add.sprite(3840, 747, 'platform', 0);
+        this.ground.anchor.setTo(0, 0);
         console.log(this.sprite);
         this.game.physics.p2.enable(this.ground);
         //
@@ -56,16 +57,37 @@ Play.prototype = {
         console.log(this.sprite);
 
 
+        this.characterMaterial = this.game.physics.p2.createMaterial('characterMaterial', this.p.body);
+
+        this.groundMaterial = this.game.physics.p2.createMaterial('groundMaterial', this.ground.body);
+
+
+        this.contactMaterial = this.game.physics.p2.createContactMaterial(this.characterMaterial, this.groundMaterial);
+
+        this.contactMaterial.restitution = 0;
+
+
+
+        this.ramp1 = this.add.sprite(3490, 747, 'floating-ramp-1', 0);
+        this.ramp1.anchor.setTo(0, 0);
+        console.log(this.sprite);
+        this.game.physics.p2.enable(this.ramp1);
+        //
+        this.ramp1.body.clearShapes();
+        this.ramp1.body.loadPolygon("mapPhysics", "floating-ramp-1");
+        this.ramp1.body.dynamic = false;
+        this.ramp1.body.gravityScale = 0;
+
         console.log(this.ground);
-        setTimeout(function(){
-            this.game.state.start(GAME_CONST.STATES.SHOP);
-        }.bind(this), 10000);
+        // setTimeout(function(){
+        //     this.game.state.start(GAME_CONST.STATES.SHOP);
+        // }.bind(this), 10000);
     },
 
     u_controller_clicked(button) {
         console.log(button);
         if (button.name == "leftButton") {
-            this.p.body.velocity.x = -1 *GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         else if (this.name == "rightButton") {
             console.log("WE are right" + button.name);
@@ -76,9 +98,7 @@ Play.prototype = {
     update() {
         // console.log("x: " + this.p.x + " y: " + this.p.y);
         this._adjustCharacterPhysicsBound();
-        this.p.y +=10;
 
-        // this.p.body.angularVelocity = 0;
         if (this.p.rpg.health <= 0) {
             // console.log("game over");
             // this.game.state.start(GAME_CONST.STATES.SHOP);
@@ -89,36 +109,47 @@ Play.prototype = {
         // this.p.rotation = 0;
         this.p.body.velocity.x = 0;
         // this.p.body.velocity.y = 0;
-
+        let isCurserDown = false;
         if (this.cursors.up.isDown) {
             // if (this.p.body.onFloor()) {
             //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             // }
-            this.p.body.velocity.y = -2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.y = -9 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            isCurserDown = true;
         }
         else if (this.cursors.down.isDown) {
             // if (this.p.body.onFloor()) {
             //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             // }
-
+            isCurserDown = true;
             // this.p.body.velocity.y =  2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-            if(this.p.frame >= 8 && this.p.frame < 16) {
-                this.p.animations.play('attack_left',10,true);
+            if (this.p.frame >= 8 && this.p.frame < 16 || this.p.frame === 24) {
+                this.p.animations.play('attack_left', 10, true);
             }
-            else if(this.p.frame >= 16 && this.p.frame < 24) {
-                this.p.animations.play('attack_right',10,true);
+            else if (this.p.frame >= 16 && this.p.frame < 24 || this.p.frame === 25) {
+                this.p.animations.play('attack_right', 10, true);
             }
         }
 
         if (this.cursors.left.isDown) {
-            this.p.body.velocity.x = -2* GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-            this.p.animations.play('walk_left',10,true);
+            this.p.body.velocity.x = -2 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.animations.play('walk_left', 10, true);
+            isCurserDown = true;
         }
         else if (this.cursors.right.isDown) {
-            this.p.body.velocity.x = 2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-            this.p.animations.play('walk_right',10,true);
+            this.p.body.velocity.x = 2 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.animations.play('walk_right', 10, true);
+            isCurserDown = true;
         }
-
+        if (!isCurserDown) {
+            this.p.animations.currentAnim.stop();
+            if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 4)) {
+                this.p.frameName = "standing-left.png";
+            }
+            else if ((this.p.frame >= 16 && this.p.frame < 24) || (this.p.frame >= 4 && this.p.frame < 8)) {
+                this.p.frameName = "standing-right.png";
+            }
+        }
         // if (this.cursors.sp) {
         //     console.log(this.p.frame);
         //     // this.p.animations.play('walk_left',10,true);
@@ -162,105 +193,113 @@ Play.prototype = {
         //     objectName.body.loadPolygon(loadedJSONFileName, fightHitboxName);
         // }
         this.p.body.clearShapes();
-        switch(this.p.animations.currentAnim.currentFrame.index) {
-            case 0 :  {
+        switch (this.p.frame) {
+            case 0 : {
                 this.p.body.loadPolygon("mapPhysics", "attack-left-1");
                 break;
             }
-            case 1 :  {
+            case 1 : {
                 this.p.body.loadPolygon("mapPhysics", "attack-left-2");
                 break;
             }
-            case 2 :  {
+            case 2 : {
                 this.p.body.loadPolygon("mapPhysics", "attack-left-3");
                 break;
             }
-            case 3 :  {
+            case 3 : {
                 this.p.body.loadPolygon("mapPhysics", "attack-left-4");
                 break;
             }
-            case 4 :  {
+            case 4 : {
                 this.p.body.loadPolygon("mapPhysics", "attack-right-1");
                 break;
             }
-            case 5 :  {
+            case 5 : {
                 this.p.body.loadPolygon("mapPhysics", "attack-right-2");
                 break;
             }
-            case 6 :  {
+            case 6 : {
                 this.p.body.loadPolygon("mapPhysics", "attack-right-3");
                 break;
             }
-            case 7 :  {
+            case 7 : {
                 this.p.body.loadPolygon("mapPhysics", "attack-right-4");
                 break;
             }
-            case 8 :  {
+            case 8 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-left-1");
                 break;
             }
-            case 9 :  {
+            case 9 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-left-2");
                 break;
             }
-            case 10 :  {
+            case 10 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-left-3");
                 break;
             }
-            case 11 :  {
+            case 11 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-left-4");
                 break;
             }
-            case 12 :  {
+            case 12 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-left-5");
                 break;
             }
-            case 13 :  {
+            case 13 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-left-6");
                 break;
             }
-            case 14 :  {
+            case 14 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-left-7");
                 break;
             }
-            case 15 :  {
+            case 15 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-left-8");
                 break;
             }
-            case 16 :  {
+            case 16 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-right-1");
                 break;
             }
-            case 17 :  {
+            case 17 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-right-2");
                 break;
             }
-            case 18 :  {
+            case 18 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-right-3");
                 break;
             }
-            case 19 :  {
+            case 19 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-right-4");
                 break;
             }
-            case 20 :  {
+            case 20 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-right-5");
                 break;
             }
-            case 21 :  {
+            case 21 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-right-6");
                 break;
             }
-            case 22 :  {
+            case 22 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-right-7");
                 break;
             }
-            case 23 :  {
+            case 23 : {
                 this.p.body.loadPolygon("mapPhysics", "character-run-right-8");
                 break;
             }
-            default :{
-                console.log("Can't resolve body type");
+            case 24: {
+                this.p.body.loadPolygon("mapPhysics", "standing-left");
+                break;
+            }
+            case 25: {
+                this.p.body.loadPolygon("mapPhysics", "standing-right");
+                break;
+            }
+            default: {
+                console.log("Can't resolve Frame Index");
                 break;
             }
         }

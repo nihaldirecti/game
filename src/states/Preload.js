@@ -27,6 +27,11 @@ Preload.prototype = {
         this.load.spritesheet('bg', 'assets/images/house.png');
         // this.load.atlas('xbox360', 'assets/images/xbox360.png', 'assets/controller/xbox360.json');
         this.game.load.atlas('character', 'assets/images/character.png', 'assets/data/character.json', Phaser.Loader.TEXTURE_ATLAS_JSON_ARRAY);
+        this.load.image("floating-ramp-1", "assets/images/floating-ramp-1.png");
+        this.load.image("floating-ramp-2", "assets/images/floating-ramp-2.png");
+        this.load.image("floating-ramp-3", "assets/images/floating-ramp-3.png");
+        this.load.image("floating-ramp-4", "assets/images/floating-ramp-4.png");
+
         this.load.physics("mapPhysics", "assets/data/mapPhysics.json");
         this.load.physics("mapPhysics", "assets/data/mapPhysics.json");
 
@@ -57,11 +62,13 @@ Preload.prototype = {
     _onLoadComplete() {
         this.progressBar.destroy();
         this.progressBackground.destroy();
-        this.playButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH/2, GAME_CONST.CANVAS.HEIGHT/2, "button", this.startGame, this);
-        this.playButton.anchor.setTo(0.5);
+        this.playButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH/2-138, GAME_CONST.CANVAS.HEIGHT/2-101, "button", this._startGame, this);
+        // this.playButton.anchor.setTo(0.5);
+        console.log(this.playButton);
     },
 
-    startGame() {
+    _startGame() {
+        console.log("start");
         this.ready = true;
     }
 };
