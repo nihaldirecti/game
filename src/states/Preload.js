@@ -11,50 +11,18 @@ var WebFontConfig = {
 };
 
 var Preload = {
+
     preload() {
         this.boss_spawned = false;
         this.counter = 0;
         this.enemy_spawn_at = [500, 1000, 1500, 2000];
         this.is_enemy_spawned = [false, false, false, false];
         this.is_enemy_dead = [false, false, false, false];
-        console.log("Test", this.load);
-
 
     },
 
     create() {
-
-        //add gamepad
-        this.imageA = this.game.add.image(500, 300, 'xbox360', '360_A');
-        this.imageB = this.game.add.image(600, 200, 'xbox360', '360_B');
-
-        this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'leftButton', this._controller_clicked, this, 2, 1, 0);
-        this.leftButton.name = "leftButton";
-        this.leftButton.onInputDown.add(function (button) {
-            button.isPressed = true;
-        });
-        this.leftButton.onInputUp.add(function (button) {
-            button.isPressed = false;
-        });
-        this.rightButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (2 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'rightButton', this._controller_clicked, this, 2, 1, 0);
-        this.rightButton.onInputDown.add(function (button) {
-            button.isPressed = true;
-        });
-        this.rightButton.onInputUp.add(function (button) {
-            button.isPressed = false;
-        });
-
-        // this.leftButton = this.game.add.image(100, 100, 'leftButton');
-        // this.rightButton = this.game.add.image(300, 100, 'rightButton');
-        // this.game.stage.addChild(this.leftButton);
-        // this.game.stage.addChild(this.rightButton);
-        this.leftButton.anchor.setTo(0.5, 0.5);
-        this.rightButton.anchor.setTo(0.5, 0.5);
-
-        //end gamepad
-
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
-
         this.game.stage.backgroundColor = '#787878';
         console.log(this.game);
         this.map = this.add.tilemap('mario');
@@ -86,7 +54,7 @@ var Preload = {
 
         this.p = this.game.add.sprite(32, 32, 'player');
         this.p.rpg = this._getRPGStats();
-        this.p.rpg.health = 1;
+        this.p.health = this.p.rpg.health;
         this.enemy = [];
         this.game.physics.enable(this.p);
         // this.game.stage.addChild(this.p);
@@ -98,6 +66,56 @@ var Preload = {
         this.p.body.collideWorldBounds = true;
         this.game.camera.follow(this.p);
 
+        //add left button
+        this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 5), GAME_CONST.CANVAS.HEIGHT * (1 / 4), 'leftButton', this._controller_clicked, this, 2, 1, 0);
+        this.leftButton.name = "leftButton";
+        this.leftButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.leftButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        //add right button
+        this.rightButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (2 / 5), GAME_CONST.CANVAS.HEIGHT * (1 / 4), 'rightButton', this._controller_clicked, this, 2, 1, 0);
+        this.rightButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.rightButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        //add jump button
+        this.jumpButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (3 / 5), GAME_CONST.CANVAS.HEIGHT * (1 / 4), 'leftButton', this._controller_clicked, this, 2, 1, 0);
+        this.jumpButton.name = "jumpButton";
+        this.jumpButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.jumpButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        //add action button
+        this.actionButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (4 / 5), GAME_CONST.CANVAS.HEIGHT * (1 / 4), 'rightButton', this._controller_clicked, this, 2, 1, 0);
+        this.actionButton.name = "actionButton";
+        this.actionButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.actionButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        // this.leftButton = this.game.add.image(100, 100, 'leftButton');
+        // this.rightButton = this.game.add.image(300, 100, 'rightButton');
+        // this.game.stage.addChild(this.leftButton);
+        // this.game.stage.addChild(this.rightButton);
+        this.leftButton.anchor.setTo(0.5, 0.5);
+        this.rightButton.anchor.setTo(0.5, 0.5);
+        this.jumpButton.anchor.setTo(0.5, 0.5);
+        this.actionButton.anchor.setTo(0.5, 0.5);
+
+        //end gamepad
+
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
     },
@@ -106,16 +124,17 @@ var Preload = {
         console.log(button);
         if (button.name == "leftButton") {
             this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        }
-        else if (this.name == "rightButton") {
+        } else if (this.name == "rightButton") {
             console.log("WE are right" + button.name);
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        } else if (this.name == "jumpButton" && this.p.body.onFloor()) {
+            this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
         }
     },
 
     update() {
         // console.log("x: " + this.p.x + " y: " + this.p.y);
-        if (this.p.rpg.health <= 0) {
+        if (this.p.health <= 0) {
             console.log("game over");
             this.game.state.start(GAME_CONST.STATES.SHOP);
         }
@@ -159,6 +178,9 @@ var Preload = {
         }
         if (this.rightButton.isPressed) {
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+        }
+        if (this.jumpButton.isPressed && this.p.body.onFloor()) {
+            this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
         }
         this.check_n_spawn_enemy();
         this.check_n_spawn_boss();
@@ -241,8 +263,8 @@ var Preload = {
     },
 
     _handle_enemy_collide(p) {
-        if (p.rpg.health > 0) {
-            p.rpg.health--;
+        if (p.health > 0) {
+            p.health--;
         }
     },
 

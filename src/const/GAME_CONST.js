@@ -35,6 +35,7 @@ const GAME_CONST = {
         x : [150, 170, 200],
         y : [200, 250, 300]
     },
+    HEALTH : 1,
 
     FIST_DAMAGE : [50, 100, 150, 200],
 
