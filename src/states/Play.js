@@ -45,6 +45,7 @@ Play.prototype = {
         this.p.animations.play('attack_right', 10, true);
         this.p.attack = {};
         this.p.attack.isAttacking = false;
+        this.p.canAttack = true;
         this.p.attack.since = new Date().getTime();
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -124,10 +125,14 @@ Play.prototype = {
                 if (this._check_if_collides(this.enemy[i])) {
                     if (this.p.attack.isAttacking) {
                         this.enemy[i].destroy();
+                        return false;
+                    } else {
+                        return true;
                     }
                 }
             }
         }
+        return false;
     },
 
     _check_if_collides(enemy){
@@ -234,44 +239,52 @@ Play.prototype = {
             }
             isCurserDown = true;
         }
-        else if (this.cursors.down.isDown) {
-            // if (this.p.body.onFloor()) {
-            //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
-            // }
-            isCurserDown = true;
-            // this.p.body.velocity.y =  2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-            if (this.p.frame >= 8 && this.p.frame < 16 || this.p.frame === 24) {
-                this.p.animations.play('attack_left', 10, true);
-            }
-            else if (this.p.frame >= 16 && this.p.frame < 24 || this.p.frame === 25) {
-                this.p.animations.play('attack_right', 10, true);
-            }
+        //should have been stationary before attacking
+        else if (this.cursors.down.isDown && this.p.canAttack) {
             this.p.attack.isAttacking = true;
             this.p.attack.since = new Date().getTime();
+        }
+
+        if (this.p.attack.isAttacking) {
+            isCurserDown = true;
+            if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 3) || this.p.frame === 24) {
+                this.p.animations.play('attack_left', 10, true);
+            }
+            else if ((this.p.frame >= 16 && this.p.frame < 24) || (this.p.frame >= 4 && this.p.frame < 7) || this.p.frame === 25) {
+                this.p.animations.play('attack_right', 10, true);
+            }
         }
 
         if (this.cursors.left.isDown) {
             this.p.body.velocity.x = -2 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_left', 10, true);
+            this.p.canAttack = false;
             isCurserDown = true;
+            this.p.attack.isAttacking = false;
         }
         else if (this.cursors.right.isDown) {
             this.p.body.velocity.x = 3 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_right', 10, true);
+            this.p.canAttack = false;
             isCurserDown = true;
+            this.p.attack.isAttacking = false;
         }
         if (!isCurserDown) {
             this.p.animations.currentAnim.stop();
             if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 4)) {
                 this.p.frameName = "standing-left.png";
+                this.p.canAttack = "true";
             }
             else if ((this.p.frame >= 16 && this.p.frame < 24) || (this.p.frame >= 4 && this.p.frame < 8)) {
                 this.p.frameName = "standing-right.png";
+                this.p.canAttack = true;
             }
         }
 
         this._move_dynamic_ramp();
-        this._check_who_dies();
+        if (this._check_who_dies()) {
+            this.game.state.start(GAME_CONST.STATES.SHOP);
+        }
     },
 
     _update_attack_sequence(){
