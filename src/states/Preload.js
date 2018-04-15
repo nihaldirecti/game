@@ -9,7 +9,8 @@ var WebFontConfig = {
     }
 };
 
-var Preload = function() {};
+var Preload = function () {
+};
 Preload.prototype = {
     preload() {
         this.ready = false;
@@ -31,6 +32,8 @@ Preload.prototype = {
         this.load.image("floating-ramp-2", "assets/images/floating-ramp-2.png");
         this.load.image("floating-ramp-3", "assets/images/floating-ramp-3.png");
         this.load.image("floating-ramp-4", "assets/images/floating-ramp-4.png");
+        this.load.image("house", "assets/images/house.png");
+        this.load.image("alien", "assets/images/alien-small.png");
 
         this.load.physics("mapPhysics", "assets/data/mapPhysics.json");
         this.load.physics("mapPhysics", "assets/data/mapPhysics.json");
@@ -42,7 +45,7 @@ Preload.prototype = {
     },
 
     update() {
-        if(this.ready) {
+        if (this.ready) {
             console.log("Load Complete");
             this.game.state.start(GAME_CONST.STATES.PLAY);
         }
@@ -50,11 +53,11 @@ Preload.prototype = {
 
     _createLoader() {
         console.log("Creating Loader");
-        this.progressBar = this.game.add.sprite(GAME_CONST.CANVAS.WIDTH/2 - 360,GAME_CONST.CANVAS.HEIGHT/2, "progressBar");
+        this.progressBar = this.game.add.sprite(GAME_CONST.CANVAS.WIDTH / 2 - 360, GAME_CONST.CANVAS.HEIGHT / 2, "progressBar");
         this.progressBar.anchor.setTo(0, 0.5);
         this.load.setPreloadSprite(this.progressBar);
 
-        this.progressBackground = this.add.sprite(GAME_CONST.CANVAS.WIDTH/2, GAME_CONST.CANVAS.HEIGHT/2, "progressBackground");
+        this.progressBackground = this.add.sprite(GAME_CONST.CANVAS.WIDTH / 2, GAME_CONST.CANVAS.HEIGHT / 2, "progressBackground");
         this.progressBackground.anchor.setTo(0.5, 0.5);
 
     },
@@ -62,7 +65,7 @@ Preload.prototype = {
     _onLoadComplete() {
         this.progressBar.destroy();
         this.progressBackground.destroy();
-        this.playButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH/2-138, GAME_CONST.CANVAS.HEIGHT/2-101, "button", this._startGame, this);
+        this.playButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH / 2 - 138, GAME_CONST.CANVAS.HEIGHT / 2 - 101, "button", this._startGame, this);
         // this.playButton.anchor.setTo(0.5);
         console.log(this.playButton);
     },

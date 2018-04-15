@@ -2,7 +2,8 @@
 
 import GAME_CONST from "../const/GAME_CONST";
 
-var Boot = function() {};
+var Boot = function () {
+};
 Boot.prototype = {
     preload() {
         console.log("Preloading Boot State");
@@ -15,7 +16,7 @@ Boot.prototype = {
         this.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
         this.scale.pageAlignHorizontally = true;
         this.scale.pageAlignVertically = true;
-        this.scale.forceOrientation(true, true);
+        this.scale.forceOrientation(false, true);
         this.input.maxPointers = 1;
         this.state.start(GAME_CONST.STATES.PRELOAD);
     }

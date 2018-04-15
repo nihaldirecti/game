@@ -32,18 +32,18 @@ const GAME_CONST = {
         stationary_time: 3000
     },
     VELOCITY: {
-        x : [150, 170, 200],
-        y : [200, 250, 300]
+        x: [250, 170, 200],
+        y: [200, 250, 300]
     },
 
-    FIST_DAMAGE : [50, 100, 150, 200],
+    FIST_DAMAGE: [50, 100, 150, 200],
 
-    KICK_DAMAGE : [75, 150, 225],
+    KICK_DAMAGE: [75, 150, 225],
 
-    SWORD_DAMAGE : [100, 200, 300],
+    SWORD_DAMAGE: [100, 200, 300],
 
     STORE_KEYS: {
-        RPG_ELEMENTS : "rpg_elements"
+        RPG_ELEMENTS: "rpg_elements"
     }
 
 };

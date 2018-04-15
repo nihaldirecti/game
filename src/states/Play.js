@@ -13,10 +13,9 @@ Play.prototype = {
     preload() {
         this.boss_spawned = false;
         this.counter = 0;
-        this.enemy_spawn_at = [500, 1000, 1500, 2000];
-        this.is_enemy_spawned = [false, false, false, false];
-        this.is_enemy_dead = [false, false, false, false];
-        console.log("Test", this.load);
+        this.is_enemy_spawned = [];
+        this.enemy = [];
+        this.ramp = [];
     },
 
     create() {
@@ -26,12 +25,14 @@ Play.prototype = {
 
         this.game.world.setBounds(0, 0, 7680, 1080);
 
-        this.p = this.game.add.sprite(0, 0, 'character');
+        this.p = this.game.add.sprite(50, 0, 'character');
         this.p.rpg = this._getRPGStats();
         this.p.rpg.health = 1;
         this.enemy = [];
 
         this.game.physics.p2.enable(this.p);
+        this.yAxis = p2.vec2.fromValues(0, 1);
+        this.p2vec2 = p2.vec2;
         this.p.body.clearShapes();
         this.p.body.loadPolygon("mapPhysics", "phaser-dude");
         this.game.physics.p2.gravity.y = 4900;
@@ -42,19 +43,20 @@ Play.prototype = {
         this.p.animations.add('attack_left', [0, 1, 2, 3]);
         this.p.animations.add('attack_right', [4, 5, 6, 7]);
         this.p.animations.play('attack_right', 10, true);
+        this.p.attack = {};
+        this.p.attack.isAttacking = false;
+        this.p.attack.since = new Date().getTime();
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
         this.ground = this.add.sprite(3840, 747, 'platform', 0);
         this.ground.anchor.setTo(0, 0);
-        console.log(this.sprite);
         this.game.physics.p2.enable(this.ground);
         //
         this.ground.body.clearShapes();
         this.ground.body.loadPolygon("mapPhysics", "ground");
         this.ground.body.dynamic = false;
         this.ground.body.gravityScale = 0;
-        console.log(this.sprite);
 
 
         this.characterMaterial = this.game.physics.p2.createMaterial('characterMaterial', this.p.body);
@@ -66,26 +68,137 @@ Play.prototype = {
 
         this.contactMaterial.restitution = 0;
 
+        //init dumb enemies
+        this.game.dumb_enemies = this.game.add.physicsGroup(
+            Phaser.Physics.P2JS,
+            this.game.map,
+            'aliens'
+        );
+        this.game.dumb_enemies.lastSpawned = new Date().getTime();
 
+        this._add_static_ramps();
+        this._add_enemy_home();
 
-        this.ramp1 = this.add.sprite(3490, 747, 'floating-ramp-1', 0);
-        this.ramp1.anchor.setTo(0, 0);
-        console.log(this.sprite);
-        this.game.physics.p2.enable(this.ramp1);
-        //
-        this.ramp1.body.clearShapes();
-        this.ramp1.body.loadPolygon("mapPhysics", "floating-ramp-1");
-        this.ramp1.body.dynamic = false;
-        this.ramp1.body.gravityScale = 0;
-
-        console.log(this.ground);
         // setTimeout(function(){
         //     this.game.state.start(GAME_CONST.STATES.SHOP);
         // }.bind(this), 10000);
     },
 
+    _add_enemy_home() {
+        this.enemy_home = this.add.sprite(1300, 773, 'house', 0);
+        this.enemy_home.anchor.setTo(0, 0);
+        this.game.physics.p2.enable(this.enemy_home);
+        //
+        this.enemy_home.body.clearShapes();
+        this.enemy_home.body.loadPolygon("mapPhysics", 'house');
+        this.enemy_home.body.dynamic = false;
+        this.enemy_home.body.gravityScale = 0;
+    },
+
+    _check_n_spawn_enemy() {
+        var length = this.enemy.length;
+        var currentSpawn = new Date().getTime();
+        if (currentSpawn > this.game.dumb_enemies.lastSpawned + 5000) {
+            this.enemy[length] = this.game.dumb_enemies.create(1200, 773, 'alien');
+            this.game.physics.p2.enable(this.enemy[length]);
+            this.enemy[length].body.velocity.x = -200;
+            this.game.dumb_enemies.lastSpawned = currentSpawn;
+        }
+    },
+
+    _move_enemies(){
+        let i = 0
+        for (; i < this.enemy.length; i++) {
+            if (this.enemy[i].body != null) {
+                this.enemy[i].body.velocity.x = -200;
+            }
+            if (this.enemy[i].body != null && this.enemy[i].body.x < 95) {
+                this.enemy[i].destroy();
+            }
+        }
+    },
+
+    _check_who_dies() {
+        for (let i = 0; i < this.enemy.length; i++) {
+            if (this.enemy[i].body != null) {
+                if (this._check_if_collides(this.enemy[i])) {
+                    if (this.p.attack.isAttacking) {
+                        this.enemy[i].destroy();
+                    }
+                }
+            }
+        }
+    },
+
+    _check_if_collides(enemy){
+        // console.log("/////////////////");
+        // console.log("x diff: " + (enemy.x - this.p.x));
+        // console.log("x widths: " + (enemy.width / 2 + this.p.width / 2));
+        // console.log("y diff: " + (enemy.y - this.p.y));
+        // console.log("x height: " + (enemy.height / 2 + this.p.height / 2));
+        // cons ole.log("/////////////////");
+        if (enemy.x - this.p.x < enemy.width / 2 + this.p.width / 2) {
+            if (enemy.y - this.p.y < enemy.height / 2 + this.p.height / 2) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    _add_static_ramps() {
+        this._add_ramp_at_pos(1042, 547, 'floating-ramp-1');
+        this._add_ramp_at_pos(2890, 397, 'floating-ramp-2');
+        this._add_ramp_at_pos(3345, 297, 'floating-ramp-3');
+        this.ramp[2].min_y = 347;
+        this.ramp[2].max_y = 647;
+        this.ramp[2].state = 'stationary_top';
+        this.ramp[2].stateSince = new Date().getTime();
+        this._add_ramp_at_pos(3866, 397, 'floating-ramp-4');
+    },
+
+    _move_dynamic_ramp() {
+        if (this.ramp[2] != undefined && this.ramp[2].stateSince != undefined) {
+            var currentTime = new Date().getTime();
+            if (this.ramp[2].state == 'stationary_top' &&
+                currentTime > this.ramp[2].stateSince + 5000) {
+                this.ramp[2].state = 'moving_bottom';
+                this.ramp[2].stateSince = currentTime;
+                this.ramp[2].body.velocity.y = 200;
+            }
+            if (this.ramp[2].state == 'moving_bottom' &&
+                this.ramp[2].y > this.ramp[2].max_y) {
+                this.ramp[2].state = 'stationary_bottom';
+                this.ramp[2].stateSince = currentTime;
+                this.ramp[2].body.velocity.y = 0;
+            }
+            if (this.ramp[2].state == 'stationary_bottom' &&
+                currentTime > this.ramp[2].stateSince + 1500) {
+                this.ramp[2].state = 'moving_up';
+                this.ramp[2].stateSince = currentTime;
+                this.ramp[2].body.velocity.y = -200;
+            }
+            if (this.ramp[2].state == 'moving_up' &&
+                this.ramp[2].y < this.ramp[2].min_y) {
+                this.ramp[2].state = 'stationary_top';
+                this.ramp[2].stateSince = currentTime;
+                this.ramp[2].body.velocity.y = 0;
+            }
+        }
+    },
+
+    _add_ramp_at_pos(x, y, image) {
+        var rampCount = this.ramp.length;
+        this.ramp[rampCount] = this.add.sprite(x, y, image, 0);
+        this.ramp[rampCount].anchor.setTo(0, 0);
+        this.game.physics.p2.enable(this.ramp[rampCount]);
+        //
+        this.ramp[rampCount].body.clearShapes();
+        this.ramp[rampCount].body.loadPolygon("mapPhysics", image);
+        this.ramp[rampCount].body.dynamic = false;
+        this.ramp[rampCount].body.gravityScale = 0;
+    },
+
     u_controller_clicked(button) {
-        console.log(button);
         if (button.name == "leftButton") {
             this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
@@ -98,7 +211,9 @@ Play.prototype = {
     update() {
         // console.log("x: " + this.p.x + " y: " + this.p.y);
         this._adjustCharacterPhysicsBound();
-
+        this._check_n_spawn_enemy();
+        this._move_enemies();
+        this._update_attack_sequence();
         if (this.p.rpg.health <= 0) {
             // console.log("game over");
             // this.game.state.start(GAME_CONST.STATES.SHOP);
@@ -114,7 +229,9 @@ Play.prototype = {
             // if (this.p.body.onFloor()) {
             //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             // }
-            this.p.body.velocity.y = -9 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            if (this._checkIfCanJump()) {
+                this.p.body.velocity.y = -9 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
+            }
             isCurserDown = true;
         }
         else if (this.cursors.down.isDown) {
@@ -129,6 +246,8 @@ Play.prototype = {
             else if (this.p.frame >= 16 && this.p.frame < 24 || this.p.frame === 25) {
                 this.p.animations.play('attack_right', 10, true);
             }
+            this.p.attack.isAttacking = true;
+            this.p.attack.since = new Date().getTime();
         }
 
         if (this.cursors.left.isDown) {
@@ -137,7 +256,7 @@ Play.prototype = {
             isCurserDown = true;
         }
         else if (this.cursors.right.isDown) {
-            this.p.body.velocity.x = 2 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+            this.p.body.velocity.x = 3 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_right', 10, true);
             isCurserDown = true;
         }
@@ -150,36 +269,16 @@ Play.prototype = {
                 this.p.frameName = "standing-right.png";
             }
         }
-        // if (this.cursors.sp) {
-        //     console.log(this.p.frame);
-        //     // this.p.animations.play('walk_left',10,true);
-        // }
-        // else if (this.cursors.right.isDown) {
-        //     // this.p.body.velocity.x = 2*GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        //     // this.p.animations.play('walk_right',10,true);
-        // }
-        // this.check_n_spawn_enemy();
-        // this.check_n_spawn_boss();
-        // if (this.boss_spawned) {
-        //     if (this.boss.x + 100 <= this.boss.init_x && this.boss.state.val == 'moving_left') {
-        //         this.boss.body.velocity.x = 0;
-        //         this.boss.state.val = 'stationary_left';
-        //         this.boss.state.fromTime = new Date().getTime();
-        //     }
-        //
-        //     if (this.boss.state.val == 'stationary_left'
-        //         && this.boss.state.fromTime + GAME_CONST.BOSS.stationary_time < new Date().getTime()) {
-        //         this.boss.state.val = 'moving_right';
-        //         this.boss.body.velocity.x = 30;
-        //     }
-        //
-        //     if (this.boss.state.val == 'moving_right' && this.boss.x >= this.boss.init_x) {
-        //         this.boss.state.val = 'moving_left';
-        //         this.boss.body.velocity.x = -30;
-        //     }
-        //
-        //
-        // }
+
+        this._move_dynamic_ramp();
+        this._check_who_dies();
+    },
+
+    _update_attack_sequence(){
+        let current = new Date().getTime();
+        if (this.p.attack.isAttacking && current > this.p.attack.since + 500) {
+            this.p.attack.isAttacking = false;
+        }
     },
 
     _adjustCharacterPhysicsBound() {
@@ -305,24 +404,6 @@ Play.prototype = {
         }
     },
 
-    check_n_spawn_enemy() {
-        if (this.p.x + 300 > this.enemy_spawn_at[this.counter] &&
-            this.is_enemy_spawned[this.counter] == false) {
-            this._spawn_enemy(this.counter, this.enemy_spawn_at[this.counter], 100);
-            this.counter++;
-        }
-    },
-
-    _spawn_enemy(i, x, y) {
-        this.enemy[i] = this.game.dumb_enemies.create(x, y, 'enemy');
-        this.game.physics.enable(this.enemy[i]);
-        this.enemy[i].body.bounce.y = 0.5;
-        this.enemy[i].body.bounce.x = 1;
-        this.enemy[i].body.linearDamping = 1;
-        this.enemy[i].body.collideWorldBounds = true;
-        this.enemy[i].body.velocity.x = -30;
-    },
-
     shutdown() {
         // for (let i = this.game.stage.children.length - 1; i >= 0; i--) {
         //     this.game.stage.removeChild(this.game.stage.children[i]);
@@ -347,6 +428,28 @@ Play.prototype = {
 
     _start() {
         this.loadingComplete = true;
+    },
+
+    _checkIfCanJump() {
+        var result = false;
+        for (var i = 0; i < this.game.physics.p2.world.narrowphase.contactEquations.length; i++) {
+            var c = this.game.physics.p2.world.narrowphase.contactEquations[i];
+
+            if (c.bodyA === this.p.body.data || c.bodyB === this.p.body.data) {
+                var d = this.p2vec2.dot(c.normalA, this.yAxis);
+
+                if (c.bodyA === this.p.body.data) {
+                    d *= -1;
+                }
+
+                if (d > 0.5) {
+                    result = true;
+                }
+            }
+        }
+
+        return result;
+
     },
 
     _createPlayButton() {
