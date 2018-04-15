@@ -27,7 +27,8 @@ Play.prototype = {
 
         this.p = this.game.add.sprite(50, 0, 'character');
         this.p.rpg = this._getRPGStats();
-        this.p.rpg.health = 1;
+        this.p.health = 2;
+        this.p.maxHeath = 2;
         this.enemy = [];
 
         this.game.physics.p2.enable(this.p);
@@ -53,6 +54,14 @@ Play.prototype = {
         this.ground = this.add.sprite(3840, 747, 'platform', 0);
         this.ground.anchor.setTo(0, 0);
         this.game.physics.p2.enable(this.ground);
+        this.healthMeterBar = this.game.add.plugin(Phaser.Plugin.HealthMeter);
+        this.healthMeterBar.bar(this.p, {
+            y: 20, x: 50,
+            width: 100, height: 20,
+            foreground: '#323232',
+            background: '#aaaaaa',
+            alpha: 0.6
+        });
         //
         this.ground.body.clearShapes();
         this.ground.body.loadPolygon("mapPhysics", "ground");
@@ -127,6 +136,8 @@ Play.prototype = {
                         this.enemy[i].destroy();
                         return false;
                     } else {
+                        this.enemy[i].destroy();
+                        this.p.health--;
                         return true;
                     }
                 }
@@ -219,7 +230,8 @@ Play.prototype = {
         this._check_n_spawn_enemy();
         this._move_enemies();
         this._update_attack_sequence();
-        if (this.p.rpg.health <= 0) {
+        this._check_who_dies()
+        if (this.p.health <= 0) {
             // console.log("game over");
             // this.game.state.start(GAME_CONST.STATES.SHOP);
         }
@@ -282,7 +294,7 @@ Play.prototype = {
         }
 
         this._move_dynamic_ramp();
-        if (this._check_who_dies()) {
+        if (this.p.health <= 0) {
             this.game.state.start(GAME_CONST.STATES.SHOP);
         }
     },
@@ -475,12 +487,6 @@ Play.prototype = {
             anchorY: 0.5
         });
         // this.game.stage.addChild(this.playButtton);
-    },
-
-    _handle_enemy_collide(p) {
-        if (p.rpg.health > 0) {
-            p.rpg.health--;
-        }
     },
 
     check_n_spawn_boss() {
