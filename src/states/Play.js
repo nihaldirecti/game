@@ -25,7 +25,12 @@ Play.prototype = {
 
         this.game.world.setBounds(0, 0, 7680, 1080);
 
+        //add backgrounds
         this.game.add.image(this.game.world.centerX, this.game.world.centerY, 'background').anchor.set(0.5);
+
+        //add clouds
+        this._add_cloud();
+
         this.p = this.game.add.sprite(50, 0, 'character');
         this.p.rpg = this._getRPGStats();
         this.p.health = 3;
@@ -82,10 +87,78 @@ Play.prototype = {
 
         this._add_static_ramps();
         this._add_enemy_home();
+        this._addOnScreenButtons();
+        this._addCoins();
+    },
 
+    _addCoins(){
+        this.coins = [];
+        this.coins[0] = this.add.sprite(400, 200, 'coin', 0);
+        // this.cloud[1] = this.add.sprite(2000, 100, 'cloud_1', 0);
+        // this.cloud[2] = this.add.sprite(4000, 450, 'cloud_3', 0);
+        // this.cloud[3] = this.add.sprite(6500, 350, 'cloud_2', 0);
+        // this.cloud[4] = this.add.sprite(8500, 200, 'cloud_1', 0);
+        for (let i = 0; i < this.cloud.length; i++) {
+            this.cloud[i].anchor.set(0.5);
+            this.game.physics.p2.enable(this.cloud[i]);
+            this.cloud[i].body.collideWorldBounds = false;
+            this.cloud[i].body.dynamic = false;
+            this.cloud[i].body.gravityScale = 0;
+            this.cloud[i].body.velocity.x = -10;
+            //this.cloud[i].body.clearShapes();
+        }
+    },
+
+    _addOnScreenButtons(){
         // setTimeout(function(){
         //     this.game.state.start(GAME_CONST.STATES.SHOP);
         // }.bind(this), 10000);
+        this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 10), GAME_CONST.CANVAS.HEIGHT * (7 / 8) + 50, 'leftB', this._controller_clicked, this, 2, 1, 0);
+        this.leftButton.name = "leftButton";
+        this.leftButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.leftButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        //add right button
+        this.rightButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (2 / 10), GAME_CONST.CANVAS.HEIGHT * (7 / 8) + 50, 'rightB', this._controller_clicked, this, 2, 1, 0);
+        this.rightButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.rightButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        //add jump button
+        this.jumpButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (8 / 10), GAME_CONST.CANVAS.HEIGHT * (7 / 8) + 50, 'upB', this._controller_clicked, this, 2, 1, 0);
+        this.jumpButton.name = "jumpButton";
+        this.jumpButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.jumpButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        //add action button
+        this.actionButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (9 / 10), GAME_CONST.CANVAS.HEIGHT * (7 / 8) + 50, 'actB', this._controller_clicked, this, 2, 1, 0);
+        this.actionButton.name = "actionButton";
+        this.actionButton.onInputDown.add(function (button) {
+            button.isPressed = true;
+        });
+        this.actionButton.onInputUp.add(function (button) {
+            button.isPressed = false;
+        });
+
+        this.leftButton.anchor.setTo(0.5, 0.5);
+        this.leftButton.fixedToCamera = true;
+        this.rightButton.anchor.setTo(0.5, 0.5);
+        this.rightButton.fixedToCamera = true;
+        this.jumpButton.anchor.setTo(0.5, 0.5);
+        this.jumpButton.fixedToCamera = true;
+        this.actionButton.anchor.setTo(0.5, 0.5);
+        this.actionButton.fixedToCamera = true;
     },
 
     _add_health_bar() {
@@ -107,6 +180,26 @@ Play.prototype = {
             rows: 1
         });
     },
+
+    _add_cloud(){
+
+        this.cloud = [];
+        this.cloud[0] = this.add.sprite(400, 200, 'cloud_3', 0);
+        this.cloud[1] = this.add.sprite(2000, 100, 'cloud_1', 0);
+        this.cloud[2] = this.add.sprite(4000, 450, 'cloud_3', 0);
+        this.cloud[3] = this.add.sprite(6500, 350, 'cloud_2', 0);
+        this.cloud[4] = this.add.sprite(8500, 200, 'cloud_1', 0);
+        for (let i = 0; i < this.cloud.length; i++) {
+            this.cloud[i].anchor.set(0.5);
+            this.game.physics.p2.enable(this.cloud[i]);
+            this.cloud[i].body.collideWorldBounds = false;
+            this.cloud[i].body.dynamic = false;
+            this.cloud[i].body.gravityScale = 0;
+            this.cloud[i].body.velocity.x = -10;
+            //this.cloud[i].body.clearShapes();
+        }
+
+    },
     _add_enemy_home() {
         this.enemy_home = this.add.sprite(1300, 773, 'house', 0);
         this.enemy_home.anchor.setTo(0, 0);
@@ -119,9 +212,15 @@ Play.prototype = {
     },
 
     _check_n_spawn_enemy() {
+        var count = 0;
         var length = this.enemy.length;
+        for (let i = 0; i < this.enemy.length; i++) {
+            if (this.enemy[i].body != null) {
+                count++;
+            }
+        }
         var currentSpawn = new Date().getTime();
-        if (currentSpawn > this.game.dumb_enemies.lastSpawned + 5000) {
+        if (count == 0 && (currentSpawn > this.game.dumb_enemies.lastSpawned + 5000)) {
             this.enemy[length] = this.game.dumb_enemies.create(1200, 773, 'alien');
             this.game.physics.p2.enable(this.enemy[length]);
             this.enemy[length].body.velocity.x = -200;
@@ -160,14 +259,8 @@ Play.prototype = {
     },
 
     _check_if_collides(enemy){
-        // console.log("/////////////////");
-        // console.log("x diff: " + (enemy.x - this.p.x));
-        // console.log("x widths: " + (enemy.width / 2 + this.p.width / 2));
-        // console.log("y diff: " + (enemy.y - this.p.y));
-        // console.log("x height: " + (enemy.height / 2 + this.p.height / 2));
-        // cons ole.log("/////////////////");
-        if (enemy.x - this.p.x < enemy.width / 2 + this.p.width / 2) {
-            if (enemy.y - this.p.y < enemy.height / 2 + this.p.height / 2) {
+        if (Math.abs(enemy.x - this.p.x) < enemy.width / 2 + this.p.width / 2) {
+            if (Math.abs(enemy.y - this.p.y) < enemy.height / 2 + this.p.height / 2) {
                 return true;
             }
         }
@@ -186,6 +279,9 @@ Play.prototype = {
     },
 
     _move_dynamic_ramp() {
+        for (let i = 0; i < this.cloud.length; i++) {
+            this.cloud[i].body.velocity.x = -50;
+        }
         if (this.ramp[2] != undefined && this.ramp[2].stateSince != undefined) {
             var currentTime = new Date().getTime();
             if (this.ramp[2].state == 'stationary_top' &&
@@ -255,7 +351,7 @@ Play.prototype = {
         this.p.body.velocity.x = 0;
         // this.p.body.velocity.y = 0;
         let isCurserDown = false;
-        if (this.cursors.up.isDown) {
+        if (this.cursors.up.isDown || this.jumpButton.isPressed) {
             // if (this.p.body.onFloor()) {
             //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             // }
@@ -265,7 +361,8 @@ Play.prototype = {
             isCurserDown = true;
         }
         //should have been stationary before attacking
-        else if (this.cursors.down.isDown && this.p.canAttack) {
+        else if ((this.cursors.down.isDown || this.actionButton.isPressed)
+            && this.p.canAttack) {
             this.p.attack.isAttacking = true;
             this.p.attack.since = new Date().getTime();
         }
@@ -280,14 +377,14 @@ Play.prototype = {
             }
         }
 
-        if (this.cursors.left.isDown) {
+        if (this.cursors.left.isDown || this.leftButton.isPressed) {
             this.p.body.velocity.x = -2 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_left', 10, true);
             this.p.canAttack = false;
             isCurserDown = true;
             this.p.attack.isAttacking = false;
         }
-        else if (this.cursors.right.isDown) {
+        else if (this.cursors.right.isDown || this.rightButton.isPressed) {
             this.p.body.velocity.x = 3 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_right', 10, true);
             this.p.canAttack = false;
