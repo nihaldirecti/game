@@ -42,6 +42,17 @@ const GAME_CONST = {
 
     SWORD_DAMAGE: [100, 200, 300],
 
+    UPGRADE_COST: {
+        VELOCITY: {
+            x: [1, 2],
+            y: [1, 2]
+        },
+
+        HEALTH: 1,
+
+        SWORD_DAMAGE: [1, 2],
+    },
+
     STORE_KEYS: {
         RPG_ELEMENTS: "rpg_elements"
     }

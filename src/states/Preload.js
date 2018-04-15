@@ -46,6 +46,16 @@ Preload.prototype = {
         this.load.physics("mapPhysics", "assets/data/mapPhysics.json");
         this.load.physics("mapPhysics", "assets/data/mapPhysics.json");
 
+        // Shop Assets
+        this.load.image("upgradeBox", "assets/images/upgradeBox.png");
+        this.load.image("upgrade-health", "assets/images/upgrade-health.png");
+        this.load.image("upgrade-attack", "assets/images/upgrade-attack.png");
+        this.load.image("upgrade-speed", "assets/images/upgrade-speed.png");
+        this.load.image("upgrade-jump", "assets/images/upgrade-jump.png");
+        this.load.image("buy-coin", "assets/images/buy-coin.png");
+        this.load.image("buy-background", "assets/images/buy-background.png");
+        this.load.image("fast-forward", "assets/images/fast-forward.png");
+
     },
 
     create() {

@@ -33,8 +33,8 @@ Play.prototype = {
 
         this.p = this.game.add.sprite(50, 0, 'character');
         this.p.rpg = this._getRPGStats();
-        this.p.health = 3;
-        this.p.maxHealth = 3;
+        this.p.health = this.p.rpg.health;
+        this.p.maxHealth = this.p.rpg.health;
         this.enemy = [];
 
         this.game.physics.p2.enable(this.p);
@@ -340,10 +340,7 @@ Play.prototype = {
         this._move_enemies();
         this._update_attack_sequence();
         this._check_who_dies()
-        if (this.p.health <= 0) {
-            // console.log("game over");
-            // this.game.state.start(GAME_CONST.STATES.SHOP);
-        }
+
         if (this.p.y > 1080) {
             // console.log("game over");
         }
