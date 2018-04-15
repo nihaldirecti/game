@@ -10,56 +10,34 @@ var WebFontConfig = {
     }
 };
 
+var left = false;
+var right = false;
+var attack = false;
+var jump = false;
+
 export class Preload {
+
     preload() {
         this.boss_spawned = false;
         this.counter = 0;
         this.enemy_spawn_at = [500, 1000, 1500, 2000];
         this.is_enemy_spawned = [false, false, false, false];
-        this.is_enemy_dead = [false, false, false, false]
+        this.is_enemy_dead = [false, false, false, false];
         this.load.tilemap('mario', 'assets/tilemaps/maps/super_mario.json', null, Phaser.Tilemap.TILED_JSON);
         this.load.image('tiles', 'assets/tilemaps/tiles/super_mario.png');
         this.load.image('enemy', 'assets/sprites/phaser-dude.png');
         this.load.image('button', 'assets/images/playGame.png', 193, 71);
-        this.load.image('leftButton', 'assets/images/arrow_left.png');
-        this.load.image('rightButton', 'assets/images/arrow_right.png');
-        this.load.spritesheet('bg', 'assets/images/asteroid_burned.png');
-        this.load.atlas('xbox360', 'assets/images/xbox360.png', 'assets/controller/xbox360.json');
-        this.load.atlasJSONArray('player', 'assets/sprites/running.png', 'assets/sprites/running.json');
+        this.game.load.image('heartFull', 'assets/images/heartFull.png');
+        this.load.atlasJSONArray('player', 'assets/sprites/player.png', 'assets/sprites/player.json');
+
+        //gamepad buttons
+        this.load.spritesheet('button-vertical', 'assets/buttons/button-vertical.png',64,64);
+        this.load.spritesheet('button-horizontal', 'assets/buttons/button-horizontal.png',96,64);
+        this.load.spritesheet('button-diagonal', 'assets/buttons/button-diagonal.png',64,64);
+        this.load.spritesheet('button-attack', 'assets/buttons/button-round-a.png',96,96);
     }
 
     create() {
-
-        //add gamepad
-        this.imageA = this.game.add.image(500, 300, 'xbox360', '360_A');
-        this.imageB = this.game.add.image(600, 200, 'xbox360', '360_B');
-        this.imageX = this.game.add.image(400, 200, 'xbox360', '360_X');
-        this.imageY = this.game.add.image(500, 100, 'xbox360', '360_Y');
-
-        this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'leftButton', this._controller_clicked, this, 2, 1, 0);
-        this.leftButton.name = "leftButton";
-        this.leftButton.onInputDown.add(function (button) {
-            button.isPressed = true;
-        });
-        this.leftButton.onInputUp.add(function (button) {
-            button.isPressed = false;
-        });
-        this.rightButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (2 / 4), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'rightButton', this._controller_clicked, this, 2, 1, 0);
-        this.rightButton.onInputDown.add(function (button) {
-            button.isPressed = true;
-        });
-        this.rightButton.onInputUp.add(function (button) {
-            button.isPressed = false;
-        });
-
-        // this.leftButton = this.game.add.image(100, 100, 'leftButton');
-        // this.rightButton = this.game.add.image(300, 100, 'rightButton');
-        this.game.stage.addChild(this.leftButton);
-        this.game.stage.addChild(this.rightButton);
-        this.leftButton.anchor.setTo(0.5, 0.5);
-        this.rightButton.anchor.setTo(0.5, 0.5);
-
-        //end gamepad
 
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -90,13 +68,36 @@ export class Preload {
             'bosses'
         );
 
-        this.p = this.game.add.sprite(32, 32, 'player', 'standing/to-right');
+        // setup our player
+        this.p = this.game.add.sprite(32, 32, 'player', 'standing/right');
         this.p.isFacingTowardsRight = true;
         this.p.scale.setTo(0.2, 0.2);
-        this.p.animations.add('walk_left', [0, 1, 2, 3, 4, 5, 6, 7]);
-        this.p.animations.add('walk_right', [8, 9, 10, 11, 12, 13, 15]);
+        this.p.animations.add('walk_left', [8, 9, 10, 11, 12, 13, 14, 15]);
+        this.p.animations.add('walk_right', [16, 17, 18, 19, 20, 21, 22, 23]);
+        this.p.animations.add('attack_left', [0, 1, 2, 3]);
+        this.p.animations.add('attack_right', [4, 5, 6, 7]);
+
 
         this.p.rpg = this._getRPGStats();
+        this.p.health = 2;
+        this.p.maxHealth = this.p.rpg.health;
+
+        // setup our health indicator
+        // this.healthMeterText = this.game.add.plugin(Phaser.Plugin.HealthMeter);
+        // this.healthMeterText.text(this.p, {x: 400, y: 20, font: {font: "22px arial", fill: "#ff0000" }});
+
+        this.healthMeterIcons = this.game.add.plugin(Phaser.Plugin.HealthMeter);
+        this.healthMeterIcons.icons(this.p, {icon: 'heartFull', y: 20, x: 170, width: 16, height: 16, rows: 1});
+
+        this.healthMeterBar = this.game.add.plugin(Phaser.Plugin.HealthMeter);
+        this.healthMeterBar.bar(this.p, {
+            y: 20, x: 50,
+            width: 100, height: 20,
+            foreground: '#ff0000',
+            background: '#aa0000',
+            alpha: 0.6
+        });
+
         this.enemy = [];
         this.game.physics.enable(this.p);
 
@@ -108,21 +109,54 @@ export class Preload {
         this.game.camera.follow(this.p);
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
-        this.game.input.gamepad.start();
-    }
 
-    _controller_clicked(button) {
-        // if (button.name == "leftButton") {
-        //     this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        // }
-        // else if (this.name == "rightButton") {
-        //     this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-        // }
+        // create our virtual game controller buttons
+        this.buttonfire = this.game.add.button(700, 450, 'button-attack', null, this, 0, 1, 0, 1);
+        this.buttonfire.fixedToCamera = true;
+        this.buttonfire.events.onInputOver.add(function(){attack=true;});
+        this.buttonfire.events.onInputOut.add(function(){attack=false;});
+        this.buttonfire.events.onInputDown.add(function(){attack=true;});
+        this.buttonfire.events.onInputUp.add(function(){attack=false;});
+
+        this.buttonleft = this.game.add.button(0, 472, 'button-horizontal', null, this, 0, 1, 0, 1);
+        this.buttonleft.fixedToCamera = true;
+        this.buttonleft.events.onInputOver.add(function(){left=true;});
+        this.buttonleft.events.onInputOut.add(function(){left=false;});
+        this.buttonleft.events.onInputDown.add(function(){left=true;});
+        this.buttonleft.events.onInputUp.add(function(){left=false;});
+
+        this.buttonright = this.game.add.button(160, 472, 'button-horizontal', null, this, 0, 1, 0, 1);
+        this.buttonright.fixedToCamera = true;
+        this.buttonright.events.onInputOver.add(function(){right=true;});
+        this.buttonright.events.onInputOut.add(function(){right=false;});
+        this.buttonright.events.onInputDown.add(function(){right=true;});
+        this.buttonright.events.onInputUp.add(function(){right=false;});
+
+        this.buttonupleft = this.game.add.button(32, 408, 'button-diagonal', null, this, 2, 0, 2, 0);
+        this.buttonupleft.fixedToCamera = true;
+        this.buttonupleft.events.onInputOver.add(function(){left=true;jump=true;});
+        this.buttonupleft.events.onInputOut.add(function(){left=false;jump=false;});
+        this.buttonupleft.events.onInputDown.add(function(){left=true;jump=true;});
+        this.buttonupleft.events.onInputUp.add(function(){left=false;jump=false;});
+
+        this.buttonupright = this.game.add.button(160, 408, 'button-diagonal', null, this, 3, 1, 3, 1);
+        this.buttonupright.fixedToCamera = true;
+        this.buttonupright.events.onInputOver.add(function(){right=true;jump=true;});
+        this.buttonupright.events.onInputOut.add(function(){right=false;jump=false;});
+        this.buttonupright.events.onInputDown.add(function(){right=true;jump=true;});
+        this.buttonupright.events.onInputUp.add(function(){right=false;jump=false;});
+
+        this.buttonup = this.game.add.button(96, 408, 'button-vertical', null, this, 0, 1, 0, 1);
+        this.buttonup.fixedToCamera = true;
+        this.buttonup.events.onInputOver.add(function(){jump=true;});
+        this.buttonup.events.onInputOut.add(function(){jump=false;});
+        this.buttonup.events.onInputDown.add(function(){jump=true;});
+        this.buttonup.events.onInputUp.add(function(){jump=false;});
     }
 
     update() {
         // console.log("x: " + this.p.x + " y: " + this.p.y);
-        if (this.p.rpg.health <= 0) {
+        if (this.p.health <= 0) {
             console.log("game over");
             this.game.state.start(GAME_CONST.STATES.SHOP);
         }
@@ -144,31 +178,40 @@ export class Preload {
                 this.game.physics.arcade.collide(this.enemy[i], this.layer);
             }
         }
-        var fun = this._handle_enemy_collide.bind(this, this.p);
-        this.game.physics.arcade.overlap(this.game.dumb_enemies, this.p,
-            fun, null, null);
 
-        if (this.cursors.up.isDown) {
+        this.game.physics.arcade.overlap(this.p, this.game.dumb_enemies, this._handle_enemy_collide, null, null);
+
+        if (this.cursors.up.isDown || jump) {
             if (this.p.body.onFloor()) {
                 this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
             }
         }
 
-        // Walking/Running
-        if (this.leftButton.isPressed || this.cursors.left.isDown) {
+        // Running/Attack
+        if (this.cursors.left.isDown || left) {
             this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_left', 10, false);
             this.p.isFacingTowardsRight = false;
-        } else if (this.rightButton.isPressed || this.cursors.right.isDown) {
+        } else if (this.cursors.right.isDown || right) {
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
             this.p.animations.play('walk_right', 10, false);
             this.p.isFacingTowardsRight = true;
+        } else if (attack) {
+            if (this.p.isFacingTowardsRight) {
+                this.p.animations.play('attack_right', 10, false);
+            } else {
+                this.p.animations.play('attack_left', 10, false);
+            }
+        } else if (this.p.body.velocity.x == 0) {
+            this.p.frame = this.p.isFacingTowardsRight ? 25 : 24;
         }
 
-        if (this.p.body.velocity.x == 0) {
-            this.p.frame = this.p.isFacingTowardsRight ? 17 : 16;
-        }
 
+
+        // this works around a "bug" where a button gets stuck in pressed state
+        if (this.game.input.currentPointers == 0 && !this.game.input.activePointer.isMouse){
+            attack=false; right=false; left=false; jump=false;
+        }
 
         this.check_n_spawn_enemy();
         this.check_n_spawn_boss();
@@ -250,10 +293,10 @@ export class Preload {
         this.game.stage.addChild(this.playButtton);
     }
 
-    _handle_enemy_collide(p) {
-        if (p.rpg.health > 0) {
-            p.rpg.health--;
-        }
+    _handle_enemy_collide(player, enemy) {
+        player.health--;
+        enemy.kill();
+        // GameManager.startState(GAME_CONST.STATES.PRELOAD);
     }
 
     check_n_spawn_boss() {
