@@ -25,10 +25,11 @@ Play.prototype = {
 
         this.game.world.setBounds(0, 0, 7680, 1080);
 
+        this.game.add.image(this.game.world.centerX, this.game.world.centerY, 'background').anchor.set(0.5);
         this.p = this.game.add.sprite(50, 0, 'character');
         this.p.rpg = this._getRPGStats();
-        this.p.health = 2;
-        this.p.maxHeath = 2;
+        this.p.health = 3;
+        this.p.maxHealth = 3;
         this.enemy = [];
 
         this.game.physics.p2.enable(this.p);
@@ -54,14 +55,7 @@ Play.prototype = {
         this.ground = this.add.sprite(3840, 747, 'platform', 0);
         this.ground.anchor.setTo(0, 0);
         this.game.physics.p2.enable(this.ground);
-        this.healthMeterBar = this.game.add.plugin(Phaser.Plugin.HealthMeter);
-        this.healthMeterBar.bar(this.p, {
-            y: 20, x: 50,
-            width: 100, height: 20,
-            foreground: '#323232',
-            background: '#aaaaaa',
-            alpha: 0.6
-        });
+        this._add_health_bar();
         //
         this.ground.body.clearShapes();
         this.ground.body.loadPolygon("mapPhysics", "ground");
@@ -94,6 +88,25 @@ Play.prototype = {
         // }.bind(this), 10000);
     },
 
+    _add_health_bar() {
+        this.healthMeterBar = this.game.add.plugin(Phaser.Plugin.HealthMeter);
+        this.healthMeterBar.bar(this.p, {
+            y: 20, x: 50,
+            width: 300, height: 128,
+            foreground: '#aaaaaa',
+            background: '#323232',
+            alpha: 0.6
+        });
+        this.healthMeterIcons = this.game.add.plugin(Phaser.Plugin.HealthMeter);
+        this.healthMeterIcons.icons(this.p, {
+            icon: 'heart',
+            y: 20,
+            x: 450,
+            width: 128,
+            height: 128,
+            rows: 1
+        });
+    },
     _add_enemy_home() {
         this.enemy_home = this.add.sprite(1300, 773, 'house', 0);
         this.enemy_home.anchor.setTo(0, 0);

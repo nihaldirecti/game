@@ -25,6 +25,8 @@ Preload.prototype = {
         this.load.image('leftButton', 'assets/images/arrow_left.png');
         this.load.image('rightButton', 'assets/images/arrow_right.png');
         this.load.image('platform', 'assets/images/ground.png');
+        this.load.image('heart', 'assets/images/heart.png');
+        this.load.image('background', 'assets/images/bg.png');
         this.load.spritesheet('bg', 'assets/images/house.png');
         // this.load.atlas('xbox360', 'assets/images/xbox360.png', 'assets/controller/xbox360.json');
         this.game.load.atlas('character', 'assets/images/character.png', 'assets/data/character.json', Phaser.Loader.TEXTURE_ATLAS_JSON_ARRAY);
