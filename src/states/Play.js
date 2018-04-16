@@ -3,6 +3,7 @@
 import GAME_CONST from "../const/GAME_CONST";
 import PlayButton from "../objects/widgets/buttons/PlayButton";
 import gameInfo from "../objects/Store/GameInfo";
+import GameManager from "../controller/GameManager";
 
 var Play = function () {
 }
@@ -395,7 +396,10 @@ Play.prototype = {
             if (new Date().getTime() > 5000 + this.p.isDeadSince) {
                 this.game.state.start(GAME_CONST.STATES.SHOP);
             }
-            this.gameOverText.setText("GAME OVER!")
+            gameInfo.collectedCoinsInCurrentSession = totalCoins;
+            gameInfo.totalCollectedCoins += totalCoins;
+            GameManager.endSoloGame();
+            this.gameOverText.setText("GAME OVER!");
             return;
         }
         this._adjustCharacterPhysicsBound();
@@ -684,10 +688,6 @@ Play.prototype = {
 
     _getRPGStats() {
         return gameInfo.rpgElements;
-    },
-
-    _setRPGStats(value) {
-        gameInfo.rpgElements = value;
     }
 };
 export default Play;

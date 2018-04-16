@@ -9,6 +9,8 @@ function GameInfo() {
     this.gameResume = false;
     this.gameOver = false;
     this.gameLayoutLoaded = false;
+    this.collectedCoinsInCurrentSession = 0;
+    this.totalCollectedCoins = 0;
     this.rpgElements = {
         health : 3,
         x_index : 0,

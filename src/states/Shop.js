@@ -2,8 +2,9 @@
 
 import GAME_CONST from "../const/GAME_CONST";
 import gameInfo from "../objects/Store/GameInfo";
+import KapowStore from "../kapow/KapowStore";
 
-var Shop = function() {}
+var Shop = function() {};
 Shop.prototype = {
     preload() {
         console.log("Here");
@@ -11,7 +12,7 @@ Shop.prototype = {
 
     create() {
 
-        this.totalCoins = 100;
+        this.totalCoins = gameInfo.totalCollectedCoins;
 
         this.game.stage.backgroundColor = '#182d3b';
         this.background = this.game.add.sprite(0, 0, 'upgradeBox');
@@ -53,6 +54,7 @@ Shop.prototype = {
                 this.costLabel1.text = GAME_CONST.UPGRADE_COST.HEALTH;
                 this.healthLabel.text = 'Health(' + gameInfo.rpgElements.health + ')';
                 this.coinsLabel.text = this.totalCoins + ' coins available';
+                this.updateRPGElementsStore();
             }
         }, this);
 
@@ -65,6 +67,7 @@ Shop.prototype = {
                 this.costLabel2.text = gameInfo.rpgElements.sword_index + 1 != GAME_CONST.SWORD_DAMAGE.length ? GAME_CONST.UPGRADE_COST.SWORD_DAMAGE[index] : '-';
                 this.attackLabel.text = 'Attack(' + (gameInfo.rpgElements.sword_index + 1) + '/' + GAME_CONST.SWORD_DAMAGE.length + ')';
                 this.coinsLabel.text = this.totalCoins + ' coins available';
+                this.updateRPGElementsStore();
             }
         }, this);
 
@@ -77,6 +80,7 @@ Shop.prototype = {
                 this.costLabel3.text = gameInfo.rpgElements.x_index + 1 != GAME_CONST.VELOCITY.x.length ? GAME_CONST.UPGRADE_COST.VELOCITY.x[index] : '-';
                 this.speedLabel.text = 'Speed(' + (gameInfo.rpgElements.x_index + 1) + '/' + GAME_CONST.VELOCITY.x.length + ')';
                 this.coinsLabel.text = this.totalCoins + ' coins available';
+                this.updateRPGElementsStore();
             }
         }, this);
 
@@ -89,6 +93,7 @@ Shop.prototype = {
                 this.costLabel4.text = gameInfo.rpgElements.y_index + 1 != GAME_CONST.VELOCITY.y.length ? GAME_CONST.UPGRADE_COST.VELOCITY.y[index] : '-';
                 this.jumpLabel.text = 'Jump(' + (gameInfo.rpgElements.y_index + 1) + '/' + GAME_CONST.VELOCITY.y.length + ')';
                 this.coinsLabel.text = this.totalCoins + ' coins available';
+                this.updateRPGElementsStore();
             }
         }, this);
 
@@ -102,8 +107,16 @@ Shop.prototype = {
 
     restartGame() {
         this.game.state.start(GAME_CONST.STATES.PRELOAD);
-    }
+    },
 
+    updateRPGElementsStore() {
+        gameInfo.totalCollectedCoins = totalCoins;
+        KapowStore.game.set(GAME_CONST.STORE_KEYS.RPG_ELEMENTS, gameInfo.rpgElements, function() {
+            console.log("rpg_elements set successful");
+        }, function (error) {
+            console.log("rpg_elements set failed" + error);
+        });
+    }
 
 };
 export default Shop;
