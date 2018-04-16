@@ -16,6 +16,7 @@ Play.prototype = {
         this.is_enemy_spawned = [];
         this.enemy = [];
         this.ramp = [];
+        this.coinCount = 0;
     },
 
     create() {
@@ -30,7 +31,6 @@ Play.prototype = {
 
         //add clouds
         this._add_cloud();
-
         this.p = this.game.add.sprite(50, 0, 'character');
         this.p.rpg = this._getRPGStats();
         this.p.health = 3;
@@ -54,6 +54,7 @@ Play.prototype = {
         this.p.attack.isAttacking = false;
         this.p.canAttack = true;
         this.p.attack.since = new Date().getTime();
+        this.p.isDead = false;
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.game.input.gamepad.start();
@@ -76,7 +77,6 @@ Play.prototype = {
         this.contactMaterial = this.game.physics.p2.createContactMaterial(this.characterMaterial, this.groundMaterial);
 
         this.contactMaterial.restitution = 0;
-
         //init dumb enemies
         this.game.dumb_enemies = this.game.add.physicsGroup(
             Phaser.Physics.P2JS,
@@ -89,30 +89,55 @@ Play.prototype = {
         this._add_enemy_home();
         this._addOnScreenButtons();
         this._addCoins();
+        this.scoreText = this.game.add.text(GAME_CONST.CANVAS.WIDTH * (17 / 20), GAME_CONST.CANVAS.HEIGHT * (1 / 120), this.coinCount, {
+            font: "150px Arial",
+            fill: "#aaaaaa",
+            align: "right"
+        });
+        this.scoreText.fixedToCamera = true;
+        this.gameOverText = this.game.add.text(GAME_CONST.CANVAS.WIDTH * (1 / 2), GAME_CONST.CANVAS.HEIGHT * (1 / 2), "", {
+            font: "150px Arial",
+            fill: "#aaaaaa",
+            align: "right"
+        });
+        this.gameOverText.anchor.setTo(0.5, 0.5);
+        this.gameOverText.fixedToCamera = true;
+
+        //add grass
+        this.game.add.image(0, 870, 'grass_3').anchor.set(0.5);
+        this.game.add.image(500, 870, 'grass_2').anchor.set(0.5);
+        this.game.add.image(1000, 870, 'grass_2').anchor.set(0.5);
+        this.game.add.image(2640, 870, 'grass_3').anchor.set(0.5);
+        this.game.add.image(4265, 840, 'grass_2').anchor.set(0.5);
+        this.game.add.image(4760, 840, 'grass_2').anchor.set(0.5);
     },
 
     _addCoins(){
         this.coins = [];
-        this.coins[0] = this.add.sprite(400, 200, 'coin', 0);
-        // this.cloud[1] = this.add.sprite(2000, 100, 'cloud_1', 0);
-        // this.cloud[2] = this.add.sprite(4000, 450, 'cloud_3', 0);
-        // this.cloud[3] = this.add.sprite(6500, 350, 'cloud_2', 0);
-        // this.cloud[4] = this.add.sprite(8500, 200, 'cloud_1', 0);
-        for (let i = 0; i < this.cloud.length; i++) {
-            this.cloud[i].anchor.set(0.5);
-            this.game.physics.p2.enable(this.cloud[i]);
-            this.cloud[i].body.collideWorldBounds = false;
-            this.cloud[i].body.dynamic = false;
-            this.cloud[i].body.gravityScale = 0;
-            this.cloud[i].body.velocity.x = -10;
-            //this.cloud[i].body.clearShapes();
+        this.coins[0] = this.add.sprite(1420, 300, 'coin', 0);
+        this.coins[1] = this.add.sprite(1340, 230, 'coin', 0);
+        this.coins[2] = this.add.sprite(1220, 220, 'coin', 0);
+        this.coins[3] = this.add.sprite(1120, 220, 'coin', 0);
+        this.coins[4] = this.add.sprite(2800, 220, 'coin', 0);
+        this.coins[5] = this.add.sprite(2900, 220, 'coin', 0);
+        this.coins[6] = this.add.sprite(3000, 220, 'coin', 0);
+        this.coins[7] = this.add.sprite(3350, 240, 'coin', 0);
+        this.coins[8] = this.add.sprite(4250, 240, 'coin', 0);
+        this.coins[9] = this.add.sprite(4350, 240, 'coin', 0);
+
+        for (let i = 0; i < this.coins.length; i++) {
+            this.coins[i].anchor.set(0.5);
+            this.game.physics.p2.enable(this.coins[i]);
+            if (i != 7) {
+                this.coins[i].body.collideWorldBounds = false;
+                this.coins[i].body.dynamic = false;
+                this.coins[i].body.gravityScale = 0;
+                this.coins[i].body.clearShapes();
+            }
         }
     },
 
     _addOnScreenButtons(){
-        // setTimeout(function(){
-        //     this.game.state.start(GAME_CONST.STATES.SHOP);
-        // }.bind(this), 10000);
         this.leftButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH * (1 / 10), GAME_CONST.CANVAS.HEIGHT * (7 / 8) + 50, 'leftB', this._controller_clicked, this, 2, 1, 0);
         this.leftButton.name = "leftButton";
         this.leftButton.onInputDown.add(function (button) {
@@ -162,19 +187,20 @@ Play.prototype = {
     },
 
     _add_health_bar() {
-        this.healthMeterBar = this.game.add.plugin(Phaser.Plugin.HealthMeter);
-        this.healthMeterBar.bar(this.p, {
-            y: 20, x: 50,
-            width: 300, height: 128,
-            foreground: '#aaaaaa',
-            background: '#323232',
-            alpha: 0.6
-        });
+        // this.healthMeterBar = this.game.add.plugin(Phaser.Plugin.HealthMeter);
+        // this.healthMeterBar.bar(this.p, {
+        //     y: GAME_CONST.CANVAS.HEIGHT * (1 / 54),
+        //     x: GAME_CONST.CANVAS.WIDTH * (1 / 40),
+        //     width: 300, height: 128,
+        //     foreground: '#aaaaaa',
+        //     background: '#323232',
+        //     alpha: 0.6
+        // });
         this.healthMeterIcons = this.game.add.plugin(Phaser.Plugin.HealthMeter);
         this.healthMeterIcons.icons(this.p, {
             icon: 'heart',
-            y: 20,
-            x: 450,
+            y: GAME_CONST.CANVAS.HEIGHT * (1 / 54),
+            x: GAME_CONST.CANVAS.WIDTH * (1 / 40),
             width: 128,
             height: 128,
             rows: 1
@@ -196,7 +222,7 @@ Play.prototype = {
             this.cloud[i].body.dynamic = false;
             this.cloud[i].body.gravityScale = 0;
             this.cloud[i].body.velocity.x = -10;
-            //this.cloud[i].body.clearShapes();
+            this.cloud[i].body.clearShapes();
         }
 
     },
@@ -240,7 +266,21 @@ Play.prototype = {
         }
     },
 
+    _coin_consumption(){
+        for (let i = 0; i < this.coins.length; i++) {
+            if (this.coins[i].body != null) {
+                if (this._check_if_collides(this.coins[i])) {
+                    this.coinCount++;
+                    this.coins[i].destroy();
+                }
+            }
+        }
+    },
+
     _check_who_dies() {
+        if (this.p.isDead) {
+            return true;
+        }
         for (let i = 0; i < this.enemy.length; i++) {
             if (this.enemy[i].body != null) {
                 if (this._check_if_collides(this.enemy[i])) {
@@ -249,13 +289,27 @@ Play.prototype = {
                         return false;
                     } else {
                         this.enemy[i].destroy();
-                        this.p.health--;
+                        this._hurt_p(1);
                         return true;
                     }
                 }
             }
         }
         return false;
+    },
+
+    _hurt_p(x){
+        this.p.health -= x;
+        if (this.p.health == 0) {
+            let x = this.p.body.x;
+            let y = this.p.body.y;
+            this.p.destroy();
+            this.p = this.add.sprite(x, y, "dead", 0);
+            this.p.anchor.set(0.5);
+            this.game.physics.p2.enable(this.p);
+            this.p.isDead = true;
+            this.p.isDeadSince = new Date().getTime();
+        }
     },
 
     _check_if_collides(enemy){
@@ -268,7 +322,7 @@ Play.prototype = {
     },
 
     _add_static_ramps() {
-        this._add_ramp_at_pos(1042, 547, 'floating-ramp-1');
+        this._add_ramp_at_pos(1142, 427, 'floating-ramp-1');
         this._add_ramp_at_pos(2890, 397, 'floating-ramp-2');
         this._add_ramp_at_pos(3345, 297, 'floating-ramp-3');
         this.ramp[2].min_y = 347;
@@ -328,26 +382,27 @@ Play.prototype = {
             this.p.body.velocity.x = -1 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
         else if (this.name == "rightButton") {
-            console.log("WE are right" + button.name);
             this.p.body.velocity.x = GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
         }
     },
 
     update() {
-        // console.log("x: " + this.p.x + " y: " + this.p.y);
+        this._check_who_dies();
+        this._check_if_drown();
+        if (this.p.isDead) {
+            this.p.body.velocity.y = -100;
+            this.p.body.velocity.x = -100;
+            if (new Date().getTime() > 5000 + this.p.isDeadSince) {
+                this.game.state.start(GAME_CONST.STATES.SHOP);
+            }
+            this.gameOverText.setText("GAME OVER!")
+            return;
+        }
         this._adjustCharacterPhysicsBound();
         this._check_n_spawn_enemy();
         this._move_enemies();
         this._update_attack_sequence();
-        this._check_who_dies()
-        if (this.p.health <= 0) {
-            // console.log("game over");
-            // this.game.state.start(GAME_CONST.STATES.SHOP);
-        }
-        if (this.p.y > 1080) {
-            // console.log("game over");
-        }
-        // this.p.rotation = 0;
+        this._coin_consumption();
         this.p.body.velocity.x = 0;
         // this.p.body.velocity.y = 0;
         let isCurserDown = false;
@@ -366,7 +421,6 @@ Play.prototype = {
             this.p.attack.isAttacking = true;
             this.p.attack.since = new Date().getTime();
         }
-
         if (this.p.attack.isAttacking) {
             isCurserDown = true;
             if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 3) || this.p.frame === 24) {
@@ -404,15 +458,22 @@ Play.prototype = {
         }
 
         this._move_dynamic_ramp();
-        if (this.p.health <= 0) {
-            this.game.state.start(GAME_CONST.STATES.SHOP);
-        }
+        this.scoreText.setText(this.coinCount);
     },
 
     _update_attack_sequence(){
         let current = new Date().getTime();
         if (this.p.attack.isAttacking && current > this.p.attack.since + 500) {
             this.p.attack.isAttacking = false;
+        }
+    },
+
+    _check_if_drown(){
+        if (!this.p.isDead
+            && this.p.body.x > 2967
+            && this.p.body.y > 821
+            && this.p.body.x < 3929) {
+            this._hurt_p(this.p.health);
         }
     },
 

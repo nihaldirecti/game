@@ -21,6 +21,7 @@ Preload.prototype = {
         this._createLoader();
         this.load.onLoadComplete.addOnce(this._onLoadComplete, this);
         this.load.image('platform', 'assets/images/ground.png');
+        this.load.image('dead', 'assets/images/dead.png');
         this.load.image('heart', 'assets/images/heart.png');
         this.load.image('cloud_1', 'assets/images/cloud_1.png');
         this.load.image('cloud_2', 'assets/images/cloud_2.png');
@@ -74,8 +75,6 @@ Preload.prototype = {
         this.progressBar.destroy();
         this.progressBackground.destroy();
         this.playButton = this.game.add.button(GAME_CONST.CANVAS.WIDTH / 2 - 138, GAME_CONST.CANVAS.HEIGHT / 2 - 101, "button", this._startGame, this);
-        // this.playButton.anchor.setTo(0.5);
-        console.log(this.playButton);
     },
 
     _startGame() {
