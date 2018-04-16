@@ -32,6 +32,7 @@ Preload.prototype = {
         this.load.image('background', 'assets/images/bg.png');
         this.load.spritesheet('bg', 'assets/images/house.png');
         this.game.load.atlas('character', 'assets/images/character.png', 'assets/data/character.json', Phaser.Loader.TEXTURE_ATLAS_JSON_ARRAY);
+        this.game.load.atlas('cutter', 'assets/images/alien-medium.png', 'assets/data/alien-medium.json', Phaser.Loader.TEXTURE_ATLAS_JSON_ARRAY);
         this.load.image("floating-ramp-1", "assets/images/floating-ramp-1.png");
         this.load.image("floating-ramp-2", "assets/images/floating-ramp-2.png");
         this.load.image("floating-ramp-3", "assets/images/floating-ramp-3.png");

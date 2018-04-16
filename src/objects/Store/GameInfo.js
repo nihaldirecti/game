@@ -10,12 +10,12 @@ function GameInfo() {
     this.gameOver = false;
     this.gameLayoutLoaded = false;
     this.rpgElements = {
-        health : 3,
-        x_index : 0,
-        y_index : 0,
-        fist_index : 0,
-        kick_index : 0,
-        sword_index : 0
+        health: 3,
+        x_index: 0,
+        y_index: 0,
+        fist_index: 0,
+        kick_index: 0,
+        sword_index: 1
     };
 }
 
