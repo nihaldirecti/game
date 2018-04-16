@@ -18,6 +18,9 @@ Play.prototype = {
         this.enemy = [];
         this.ramp = [];
         this.coinCount = 0;
+        this.cutterHealthAdded = false;
+        this.gameOver = false;
+        this.gameOverMarked = false;
     },
 
     create() {
@@ -36,12 +39,12 @@ Play.prototype = {
         this.p.rpg = this._getRPGStats();
         this.p.health = this.p.rpg.health;
         this.p.maxHealth = this.p.rpg.health;
+        this.p.attackDamage = this.p.rpg.sword_index;
         this.enemy = [];
 
         this.game.physics.p2.enable(this.p);
         this.yAxis = p2.vec2.fromValues(0, 1);
         this.p2vec2 = p2.vec2;
-        this.p.body.clearShapes();
         this.p.body.loadPolygon("mapPhysics", "phaser-dude");
         this.game.physics.p2.gravity.y = 4900;
         this.p.body.fixedRotation = true;
@@ -90,6 +93,7 @@ Play.prototype = {
         this._add_enemy_home();
         this._addOnScreenButtons();
         this._addCoins();
+        this._add_cutter();
         this.scoreText = this.game.add.text(GAME_CONST.CANVAS.WIDTH * (17 / 20), GAME_CONST.CANVAS.HEIGHT * (1 / 120), this.coinCount, {
             font: "150px Arial",
             fill: "#aaaaaa",
@@ -104,6 +108,14 @@ Play.prototype = {
         this.gameOverText.anchor.setTo(0.5, 0.5);
         this.gameOverText.fixedToCamera = true;
 
+        this.gameOverWinText = this.game.add.text(GAME_CONST.CANVAS.WIDTH * (1 / 2), GAME_CONST.CANVAS.HEIGHT * (1 / 2), "", {
+            font: "150px Arial",
+            fill: "#aaaaaa",
+            align: "right"
+        });
+        this.gameOverWinText.anchor.setTo(0.5, 0.5);
+        this.gameOverWinText.fixedToCamera = true;
+
         //add grass
         this.game.add.image(0, 870, 'grass_3').anchor.set(0.5);
         this.game.add.image(500, 870, 'grass_2').anchor.set(0.5);
@@ -111,6 +123,19 @@ Play.prototype = {
         this.game.add.image(2640, 870, 'grass_3').anchor.set(0.5);
         this.game.add.image(4265, 840, 'grass_2').anchor.set(0.5);
         this.game.add.image(4760, 840, 'grass_2').anchor.set(0.5);
+    },
+
+    _add_cutter(){
+        this.cutter = this.game.add.sprite(7170, 400, 'cutter');
+        this.game.physics.p2.enable(this.cutter);
+        this.cutter.animations.add('alien-medium-1.png', [0, 1]);
+        this.cutter.animations.add('alien-medium-2.png', [0]);
+        this.cutter.animations.play('alien-medium-1.png', 10, true);
+        this.cutter.isAttacking = true;
+        this.cutter.lastAttacked = 0;
+        this.cutter.lastHurted = 0;
+        this.cutter.maxHealth = 6;
+        this.cutter.health = 6;
     },
 
     _addCoins(){
@@ -187,16 +212,23 @@ Play.prototype = {
         this.actionButton.fixedToCamera = true;
     },
 
+    _add_cutter_healthbar(){
+        if (this.cutter != undefined) {
+            this.healthMeterIcons = this.game.add.plugin(Phaser.Plugin.HealthMeter);
+            this.healthMeterIcons.icons(this.cutter, {
+                icon: 'heart',
+                y: GAME_CONST.CANVAS.HEIGHT * (1 / 54),
+                x: GAME_CONST.CANVAS.WIDTH * (22 / 40),
+                width: 128,
+                height: 128,
+                rows: 1
+            });
+        }
+        this.scoreText.setText("");
+        this.scoreText = null;
+    },
+
     _add_health_bar() {
-        // this.healthMeterBar = this.game.add.plugin(Phaser.Plugin.HealthMeter);
-        // this.healthMeterBar.bar(this.p, {
-        //     y: GAME_CONST.CANVAS.HEIGHT * (1 / 54),
-        //     x: GAME_CONST.CANVAS.WIDTH * (1 / 40),
-        //     width: 300, height: 128,
-        //     foreground: '#aaaaaa',
-        //     background: '#323232',
-        //     alpha: 0.6
-        // });
         this.healthMeterIcons = this.game.add.plugin(Phaser.Plugin.HealthMeter);
         this.healthMeterIcons.icons(this.p, {
             icon: 'heart',
@@ -296,6 +328,26 @@ Play.prototype = {
                 }
             }
         }
+        if (this._check_if_collides(this.cutter)) {
+            if (this.cutter.isAttacking) {
+                let time = new Date().getTime();
+                if (time > 2000 + this.cutter.lastAttacked) {
+                    this._hurt_p(1);
+                    this.cutter.lastAttacked = time;
+                }
+            } else if (this.p.attack.isAttacking) {
+                let time = new Date().getTime();
+                if (time > 2000 + this.cutter.lastHurted) {
+                    this.cutter.health -= this.p.attackDamage;
+                    this.cutter.lastHurted = time;
+                    if (this.cutter.health <= 0) {
+                        this.cutter.destroy();
+                        this.gameOver = true;
+                        this.gameOverTime = new Date().getTime();
+                    }
+                }
+            }
+        }
         return false;
     },
 
@@ -388,6 +440,17 @@ Play.prototype = {
     },
 
     update() {
+        if (this.gameOver) {
+            if (new Date().getTime() > this.gameOverTime + 5000) {
+                this.game.state.start(GAME_CONST.STATES.SHOP);
+            }
+            this.gameOverWinText.setText("GAME OVER! You WIN");
+            return;
+        }
+        if (!this.cutterHealthAdded && this.p.body.x > 5700) {
+            this._add_cutter_healthbar();
+            this.cutterHealthAdded = true;
+        }
         this._check_who_dies();
         this._check_if_drown();
         if (this.p.isDead) {
@@ -408,6 +471,7 @@ Play.prototype = {
         this._update_attack_sequence();
         this._check_who_dies();
         this._coin_consumption();
+        this._cutter_updates();
         this.p.body.velocity.x = 0;
         // this.p.body.velocity.y = 0;
         let isCurserDown = false;
@@ -463,7 +527,9 @@ Play.prototype = {
         }
 
         this._move_dynamic_ramp();
-        this.scoreText.setText(this.coinCount);
+        if (this.scoreText != null) {
+            this.scoreText.setText(this.coinCount);
+        }
     },
 
     _update_attack_sequence(){
@@ -479,6 +545,19 @@ Play.prototype = {
             && this.p.body.y > 821
             && this.p.body.x < 3929) {
             this._hurt_p(this.p.health);
+        }
+    },
+    _cutter_updates(){
+        let key = parseInt((new Date().getTime() % 10000) / 1000) % 4;
+        if (this.cutter.body != null) {
+            if (this.cutter.isAttacking
+                && key <= 1) {
+                this.cutter.isAttacking = false;
+                this.cutter.animations.play('alien-medium-2.png', 10, true);
+            } else if (!this.cutter.isAttacking && key > 1) {
+                this.cutter.isAttacking = true;
+                this.cutter.animations.play('alien-medium-1.png', 10, true);
+            }
         }
     },
 

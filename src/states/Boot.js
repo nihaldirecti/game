@@ -17,7 +17,7 @@ Boot.prototype = {
         this.scale.pageAlignHorizontally = true;
         this.scale.pageAlignVertically = true;
         this.scale.forceOrientation(false, true);
-        this.input.maxPointers = 1;
+        this.input.maxPointers = 6;
         this.state.start(GAME_CONST.STATES.PRELOAD);
     }
 };
