@@ -7,21 +7,24 @@ import KapowStore from "./KapowStore";
 
 class KapowClient {
 
-    handleOnLoad(room) {
-        console.log("onload" + room);
+    handleOnLoad() {
+        console.log("onload");
 
         var default_RPG_elements = {
-            health : 3,
-            x_index : 0,
-            y_index : 0,
-            fist_index : 0,
-            kick_index : 0,
-            sword_index : 0
+            health: 3,
+            x_index: 0,
+            y_index: 0,
+            fist_index: 0,
+            kick_index: 0,
+            sword_index: 0,
+            collectedCoinsInCurrentSession: 0,
+            totalCollectedCoins: 0
         };
-        KapowStore.game.get(GAME_CONST.STORE_KEYS.RPG_ELEMENTS, function(value) {
+        KapowStore.game.get(GAME_CONST.STORE_KEYS.RPG_ELEMENTS, function (value) {
             if (value) {
                 console.log("rpg_elements fetch successful" + value);
                 gameInfo.rpgElements = value;
+                console.log(gameInfo.rpgElements);
             } else {
                 console.log("rpg_elements fetch unsuccessful");
                 gameInfo.rpgElements = default_RPG_elements;
@@ -31,50 +34,17 @@ class KapowClient {
             gameInfo.rpgElements = default_RPG_elements;
         });
 
-        gameInfo.set("room", room);
-        this._loadScreen();
     }
 
-    handleOnGameEnd(outcome) {
-        console.log("outcome" + outcome);
-    }
-
-    reloadScreen() {
-        GameManager.loadGameScreen();
-    }
-
-    handleMessage(message) {
-        console.log("message recieved" + message);
-    }
-
-    handleOnPause() {
-        GameManager.updateSoundState(true);
-    }
-
-    handleBackButton() {
-        console.log('BackButton Triggered.');
-        kapow.analytics.sendEvent("back_tapped", {
-            "type": "OS"
-        });
-        let screenState = gameInfo.get("screenState");
-        console.log("screenState (backButton) :", screenState);
-        kapow.close();
-    }
-
-    handleOnResume() {
-        kapowStore.get("music", function (args) {
-            console.log("gameStore fetch - Success.");
-            console.log("Value fetched from gameStore was : ", args);
-            let valueJSON = JSON.parse(args);
-            GameManager.updateSoundState(valueJSON.volume === 0);
-        });
-        GameManager.loadGameScreen();
-        console.log('On Resume Triggered.');
-    }
-
-    handleDisplayActiveRooms() {
-        kapow.displayActiveRooms();
-    }
+    // handleBackButton() {
+    //     console.log('BackButton Triggered.');
+    //     kapow.analytics.sendEvent("back_tapped", {
+    //         "type": "OS"
+    //     });
+    //     let screenState = gameInfo.get("screenState");
+    //     console.log("screenState (backButton) :", screenState);
+    //     kapow.close();
+    // }
 
     handleInvokeRPC(methodName, parameters, invokeLazily, successCallback, failureCallback) {
         try {
@@ -95,18 +65,6 @@ class KapowClient {
         }
     }
 
-    handleStartGameWithFriends(minimumNumberOfPlayers, maximumNumberOfPlayers, successCallback, failureCallback) {
-        kapow.startGameWithFriends(minimumNumberOfPlayers, maximumNumberOfPlayers, successCallback, failureCallback);
-    }
-
-    handleStartGameWithRandomPlayers(attributes, successCallback, failureCallback) {
-        kapow.startGameWithRandomPlayers(attributes, successCallback, failureCallback);
-    }
-
-    handleRematch(successCallback, failureCallback) {
-        kapow.rematch(successCallback, failureCallback);
-    }
-
     handleStartSoloGame(successCallback, failureCallback) {
         try {
             kapow.startSoloGame(successCallback, failureCallback);
@@ -121,45 +79,6 @@ class KapowClient {
         } catch (error) {
             console.log("kapow not found" + error);
         }
-    }
-
-    handleFetchHistorySince(messageId, numberOfMessages, successCallback, failureCallback) {
-        kapow.fetchHistorySince(messageId, numberOfMessages, successCallback, failureCallback);
-    }
-
-    handleFetchHistoryBefore(messageId, numberOfMessages, successCallback, failureCallback) {
-        kapow.fetchHistoryBefore(messageId, numberOfMessages, successCallback, failureCallback);
-    }
-
-    handleSocialShare(text, medium, successCallback, failureCallback) {
-        kapow.social.share(text, medium, successCallback, failureCallback);
-    }
-
-    handleAnalyticsEvent(eventName, attributes) {
-        kapow.analytics.sendEvent(eventName, attributes);
-    }
-
-    handleUnloadRoom(successCallback, failureCallback) {
-        kapow.unloadRoom(successCallback, failureCallback);
-    }
-
-    ////////////// END OF PUBLIC METHODS /////////
-
-    _loadScreen() {
-        console.log("Loading Player Info");
-        kapow.getUserInfo(function (user) {
-            console.log("Client getUserInfoSuccess - User: " + JSON.stringify(user));
-            gameInfo.set("playerData", user.player);
-            if (gameInfo.get("room") !== null) {
-                gameInfo.set("gameResume", true);
-            } else {
-                gameInfo.set("gameResume", false);
-            }
-            console.log("Game about to be started.");
-            GameManager.startGame();
-        }.bind(this), function (error) {
-            console.log("Client getUserInfo failure", error);
-        });
     }
 }
 

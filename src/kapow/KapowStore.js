@@ -6,7 +6,7 @@ let KapowStore = {
             try {
                 kapow.gameStore.get(key, function (val) {
                     console.log("Fetching gameStore " + key + " data successful", val);
-                    successCallback && successCallback(val);
+                    successCallback && successCallback(JSON.parse(val));
                 }.bind(this), function (error) {
                     console.log("Fetching gameStore " + key + " data failed : ", error);
                     failureCallback && failureCallback();
@@ -18,7 +18,7 @@ let KapowStore = {
 
         set(key, param, successCallback, failureCallback) {
             try {
-                kapow.gameStore.set(key, param, function () {
+                kapow.gameStore.set(key, JSON.stringify(param), function () {
                     console.log("Storing gameStore " + key + " data was successful :", param);
                     successCallback && successCallback();
                 }, function (error) {
@@ -35,7 +35,7 @@ let KapowStore = {
         get(key, successCallback, failureCallback) {
             kapow.roomStore.get(key, function (val) {
                 console.log("Fetching gameStore " + key + " data successful", val);
-                successCallback && successCallback(val);
+                successCallback && successCallback(JSON.parse(val));
             }.bind(this), function (error) {
                 console.log("Fetching gameStore " + key + " data failed : ", error);
                 failureCallback && failureCallback();
@@ -43,7 +43,7 @@ let KapowStore = {
         },
 
         set(key, param, successCallback, failureCallback) {
-            kapow.roomStore.set(key, param, function () {
+            kapow.roomStore.set(key, JSON.stringify(param), function () {
                 console.log("Storing gameStore " + key + " data was successful :", param);
                 successCallback && successCallback();
             }, function (error) {

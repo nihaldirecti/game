@@ -4,15 +4,16 @@ import GAME_CONST from "../const/GAME_CONST";
 import gameInfo from "../objects/Store/GameInfo";
 import KapowStore from "../kapow/KapowStore";
 
-var Shop = function() {};
+var Shop = function () {
+};
 
 Shop.prototype = {
     preload() {
     },
 
     create() {
-
-        this.totalCoins = gameInfo.totalCollectedCoins;
+        this.updateRPGElementsStore();
+        this.totalCoins = gameInfo.rpgElements.totalCollectedCoins;
 
         this.game.stage.backgroundColor = '#182d3b';
         this.background = this.game.add.sprite(0, 0, 'upgradeBox');
@@ -95,11 +96,11 @@ Shop.prototype = {
         });
 
         this.buyLabel1.inputEnabled = true;
-        this.buyLabel1.events.onInputDown.add(function() {
+        this.buyLabel1.events.onInputDown.add(function () {
             if (this.totalCoins >= GAME_CONST.UPGRADE_COST.HEALTH && gameInfo.rpgElements.health < GAME_CONST.MAX_HEALTH) {
                 this.totalCoins -= GAME_CONST.UPGRADE_COST.HEALTH;
                 gameInfo.rpgElements.health += 1;
-                gameInfo.totalCollectedCoins = this.totalCoins;
+                // gameInfo.rpgElements.totalCollectedCoins = this.totalCoins;
                 this.costLabel1.text = GAME_CONST.UPGRADE_COST.HEALTH;
                 this.healthLabel.text = 'Health(' + gameInfo.rpgElements.health + '/' + GAME_CONST.MAX_HEALTH + ')';
                 this.coinsLabel.text = this.totalCoins + ' coins available';
@@ -113,7 +114,7 @@ Shop.prototype = {
             if (this.totalCoins >= GAME_CONST.UPGRADE_COST.SWORD_DAMAGE[index] && index <= GAME_CONST.SWORD_DAMAGE.length - 1) {
                 this.totalCoins -= GAME_CONST.UPGRADE_COST.SWORD_DAMAGE[index];
                 gameInfo.rpgElements.sword_index += 1;
-                gameInfo.totalCollectedCoins = this.totalCoins;
+                // gameInfo.rpgElements.totalCollectedCoins = this.totalCoins;
                 this.costLabel2.text = gameInfo.rpgElements.sword_index + 1 != GAME_CONST.SWORD_DAMAGE.length ? GAME_CONST.UPGRADE_COST.SWORD_DAMAGE[index] : '-';
                 this.attackLabel.text = 'Attack(' + (gameInfo.rpgElements.sword_index + 1) + '/' + GAME_CONST.SWORD_DAMAGE.length + ')';
                 this.coinsLabel.text = this.totalCoins + ' coins available';
@@ -127,7 +128,7 @@ Shop.prototype = {
             if (this.totalCoins >= GAME_CONST.UPGRADE_COST.VELOCITY.x[index] && index <= GAME_CONST.VELOCITY.x.length - 1) {
                 this.totalCoins -= GAME_CONST.UPGRADE_COST.VELOCITY.x[index];
                 gameInfo.rpgElements.x_index += 1;
-                gameInfo.totalCollectedCoins = this.totalCoins;
+                // gameInfo.rpgElements.totalCollectedCoins = this.totalCoins;
                 this.costLabel3.text = gameInfo.rpgElements.x_index + 1 != GAME_CONST.VELOCITY.x.length ? GAME_CONST.UPGRADE_COST.VELOCITY.x[index] : '-';
                 this.speedLabel.text = 'Speed(' + (gameInfo.rpgElements.x_index + 1) + '/' + GAME_CONST.VELOCITY.x.length + ')';
                 this.coinsLabel.text = this.totalCoins + ' coins available';
@@ -140,7 +141,7 @@ Shop.prototype = {
             let index = gameInfo.rpgElements.y_index;
             if (this.totalCoins >= GAME_CONST.UPGRADE_COST.VELOCITY.y[index] && index <= GAME_CONST.VELOCITY.y.length - 1) {
                 this.totalCoins -= GAME_CONST.UPGRADE_COST.VELOCITY.y[index];
-                gameInfo.totalCollectedCoins = this.totalCoins;
+                // gameInfo.rpgElements.totalCollectedCoins = this.totalCoins;
                 gameInfo.rpgElements.y_index += 1;
                 this.costLabel4.text = gameInfo.rpgElements.y_index + 1 != GAME_CONST.VELOCITY.y.length ? GAME_CONST.UPGRADE_COST.VELOCITY.y[index] : '-';
                 this.jumpLabel.text = 'Jump(' + (gameInfo.rpgElements.y_index + 1) + '/' + GAME_CONST.VELOCITY.y.length + ')';
@@ -167,7 +168,7 @@ Shop.prototype = {
     },
 
     updateRPGElementsStore() {
-        KapowStore.game.set(GAME_CONST.STORE_KEYS.RPG_ELEMENTS, gameInfo.rpgElements, function() {
+        KapowStore.game.set(GAME_CONST.STORE_KEYS.RPG_ELEMENTS, gameInfo.rpgElements, function () {
             console.log("rpg_elements set successful");
         }, function (error) {
             console.log("rpg_elements set failed" + error);

@@ -3,6 +3,7 @@
 
 import GAME_CONST from "../const/GAME_CONST";
 import GameManager from "../controller/GameManager";
+import KapowClient from "../kapow/KapowClient";
 
 var WebFontConfig = {
     active: function () {
@@ -58,17 +59,18 @@ Preload.prototype = {
         this.load.image("buy-coin", "assets/images/buy-coin.png");
         this.load.image("buy-background", "assets/images/buy-background.png");
         this.load.image("fast-forward", "assets/images/fast-forward.png");
-
     },
 
     create() {
+        console.log("Kapow loading complete");
 
     },
 
     update() {
         if (this.ready) {
             console.log("Load Complete");
-            this.game.state.start(GAME_CONST.STATES.PLAY);
+            KapowClient.handleOnLoad();
+            GameManager.startState(GAME_CONST.STATES.PLAY);
             GameManager.startSoloGame();
         }
     },

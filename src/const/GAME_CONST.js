@@ -56,7 +56,7 @@ const GAME_CONST = {
     MAX_HEALTH: 6,
 
     STORE_KEYS: {
-        RPG_ELEMENTS: "rpg_elements"
+        RPG_ELEMENTS: "rpg_stat"
     }
 
 };

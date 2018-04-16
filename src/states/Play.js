@@ -4,14 +4,39 @@ import GAME_CONST from "../const/GAME_CONST";
 import PlayButton from "../objects/widgets/buttons/PlayButton";
 import gameInfo from "../objects/Store/GameInfo";
 import GameManager from "../controller/GameManager";
+import KapowStore from "../kapow/KapowStore"
 
 var Play = function () {
-}
+};
 
 
 Play.prototype = {
 
     preload() {
+        var default_RPG_elements = {
+            health: 3,
+            x_index: 0,
+            y_index: 0,
+            fist_index: 0,
+            kick_index: 0,
+            sword_index: 0,
+            collectedCoinsInCurrentSession: 0,
+            totalCollectedCoins: 0
+        };
+        KapowStore.game.get(GAME_CONST.STORE_KEYS.RPG_ELEMENTS, function (value) {
+            if (value) {
+                console.log("rpg_elements fetch successful" + value);
+                gameInfo.rpgElements = value;
+            } else {
+                console.log("rpg_elements fetch unsuccessful");
+                gameInfo.rpgElements = default_RPG_elements;
+            }
+        }, function (error) {
+            console.log("rpg_elements fetch failed" + error);
+            gameInfo.rpgElements = default_RPG_elements;
+        });
+        console.log("coins" + gameInfo.rpgElements.totalCollectedCoins);
+
         this.boss_spawned = false;
         this.counter = 0;
         this.is_enemy_spawned = [];
@@ -461,8 +486,8 @@ Play.prototype = {
             this.p.body.velocity.y = -100;
             this.p.body.velocity.x = -100;
             if (new Date().getTime() > 5000 + this.p.isDeadSince) {
-                gameInfo.collectedCoinsInCurrentSession = this.coinCount;
-                gameInfo.totalCollectedCoins += this.coinCount;
+                gameInfo.rpgElements.collectedCoinsInCurrentSession = this.coinCount;
+                gameInfo.rpgElements.totalCollectedCoins += this.coinCount;
                 this.game.state.start(GAME_CONST.STATES.SHOP);
                 GameManager.endSoloGame();
             }
