@@ -17,7 +17,7 @@ function GameInfo() {
         y_index: 0,
         fist_index: 0,
         kick_index: 0,
-        sword_index: 1
+        sword_index: 0
     };
 }
 

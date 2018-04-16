@@ -22,7 +22,7 @@ Shop.prototype = {
         this.box3 = this.game.add.sprite(GAME_CONST.CANVAS.WIDTH * (3 / 6), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'upgrade-speed');
         this.box4 = this.game.add.sprite(GAME_CONST.CANVAS.WIDTH * (4 / 6), GAME_CONST.CANVAS.HEIGHT * (1 / 3), 'upgrade-jump');
 
-        this.healthLabel = this.game.add.text(GAME_CONST.CANVAS.WIDTH * (1 / 6) + 40, GAME_CONST.CANVAS.HEIGHT * (1 / 3) - 70, 'Health(' + gameInfo.rpgElements.health + ')', {
+        this.healthLabel = this.game.add.text(GAME_CONST.CANVAS.WIDTH * (1 / 6) + 40, GAME_CONST.CANVAS.HEIGHT * (1 / 3) - 70, 'Health(' + gameInfo.rpgElements.health + '/' + GAME_CONST.MAX_HEALTH + ')', {
             font: '60px Arial',
             fill: '#d38523',
             align: "center"
@@ -96,12 +96,12 @@ Shop.prototype = {
 
         this.buyLabel1.inputEnabled = true;
         this.buyLabel1.events.onInputDown.add(function() {
-            if (this.totalCoins >= GAME_CONST.UPGRADE_COST.HEALTH) {
+            if (this.totalCoins >= GAME_CONST.UPGRADE_COST.HEALTH && gameInfo.rpgElements.health < GAME_CONST.MAX_HEALTH) {
                 this.totalCoins -= GAME_CONST.UPGRADE_COST.HEALTH;
                 gameInfo.rpgElements.health += 1;
                 gameInfo.totalCollectedCoins = this.totalCoins;
                 this.costLabel1.text = GAME_CONST.UPGRADE_COST.HEALTH;
-                this.healthLabel.text = 'Health(' + gameInfo.rpgElements.health + ')';
+                this.healthLabel.text = 'Health(' + gameInfo.rpgElements.health + '/' + GAME_CONST.MAX_HEALTH + ')';
                 this.coinsLabel.text = this.totalCoins + ' coins available';
                 this.updateRPGElementsStore();
             }
@@ -163,7 +163,7 @@ Shop.prototype = {
     },
 
     restartGame() {
-        this.game.state.start(GAME_CONST.STATES.PRELOAD);
+        this.game.state.start(GAME_CONST.STATES.PLAY);
     },
 
     updateRPGElementsStore() {

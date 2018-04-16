@@ -40,7 +40,7 @@ const GAME_CONST = {
 
     KICK_DAMAGE: [75, 150, 225],
 
-    SWORD_DAMAGE: [100, 200, 300],
+    SWORD_DAMAGE: [1, 2, 3],
 
     UPGRADE_COST: {
         VELOCITY: {
@@ -52,6 +52,8 @@ const GAME_CONST = {
 
         SWORD_DAMAGE: [1, 2],
     },
+
+    MAX_HEALTH: 6,
 
     STORE_KEYS: {
         RPG_ELEMENTS: "rpg_elements"

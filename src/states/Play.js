@@ -39,7 +39,7 @@ Play.prototype = {
         this.p.rpg = this._getRPGStats();
         this.p.health = this.p.rpg.health;
         this.p.maxHealth = this.p.rpg.health;
-        this.p.attackDamage = this.p.rpg.sword_index;
+        this.p.attackDamage = GAME_CONST.SWORD_DAMAGE[this.p.rpg.sword_index];
         this.enemy = [];
 
         this.game.physics.p2.enable(this.p);
