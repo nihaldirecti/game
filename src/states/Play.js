@@ -469,74 +469,78 @@ Play.prototype = {
             this.gameOverText.setText("GAME OVER!");
             return;
         }
-        this._adjustCharacterPhysicsBound();
-        this._check_n_spawn_enemy();
-        this._move_enemies();
-        this._update_attack_sequence();
-        this._check_who_dies();
-        this._coin_consumption();
-        this._cutter_updates();
-        this.p.body.velocity.x = 0;
-        // this.p.body.velocity.y = 0;
-        let isCurserDown = false;
-        if (this.cursors.up.isDown || this.jumpButton.isPressed) {
-            // if (this.p.body.onFloor()) {
-            //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
-            // }
-            if (this._checkIfCanJump()) {
-                this.p.body.velocity.y = -9 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
+        try {
+            this._adjustCharacterPhysicsBound();
+            this._check_n_spawn_enemy();
+            this._move_enemies();
+            this._update_attack_sequence();
+            this._check_who_dies();
+            this._coin_consumption();
+            this._cutter_updates();
+            this.p.body.velocity.x = 0;
+            // this.p.body.velocity.y = 0;
+            let isCurserDown = false;
+            if (this.cursors.up.isDown || this.jumpButton.isPressed) {
+                // if (this.p.body.onFloor()) {
+                //     this.p.body.velocity.y = -1 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
+                // }
+                if (this._checkIfCanJump()) {
+                    this.p.body.velocity.y = -9 * GAME_CONST.VELOCITY.y[this.p.rpg.y_index];
+                }
+                isCurserDown = true;
             }
-            isCurserDown = true;
-        }
-        //should have been stationary before attacking
-        else if ((this.cursors.down.isDown || this.actionButton.isPressed)
-            && this.p.canAttack) {
-            this.p.attack.isAttacking = true;
-            this.p.attack.since = new Date().getTime();
-        }
-        if (this.p.attack != undefined && this.p.attack.isAttacking) {
-            isCurserDown = true;
-            if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 3) || this.p.frame === 24) {
-                this.p.animations.play('attack_left', 10, true);
+            //should have been stationary before attacking
+            else if ((this.cursors.down.isDown || this.actionButton.isPressed)
+                && this.p.canAttack) {
+                this.p.attack.isAttacking = true;
+                this.p.attack.since = new Date().getTime();
             }
-            else if ((this.p.frame >= 16 && this.p.frame < 24) || (this.p.frame >= 4 && this.p.frame < 7) || this.p.frame === 25) {
-                this.p.animations.play('attack_right', 10, true);
+            if (this.p.attack != undefined && this.p.attack.isAttacking) {
+                isCurserDown = true;
+                if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 3) || this.p.frame === 24) {
+                    this.p.animations.play('attack_left', 10, true);
+                }
+                else if ((this.p.frame >= 16 && this.p.frame < 24) || (this.p.frame >= 4 && this.p.frame < 7) || this.p.frame === 25) {
+                    this.p.animations.play('attack_right', 10, true);
+                }
             }
-        }
 
-        if (this.cursors.left.isDown || this.leftButton.isPressed) {
-            this.p.body.velocity.x = -2 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-            this.p.animations.play('walk_left', 10, true);
-            this.p.canAttack = false;
-            isCurserDown = true;
-            this.p.attack.isAttacking = false;
-        }
-        else if (this.cursors.right.isDown || this.rightButton.isPressed) {
-            this.p.body.velocity.x = 3 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
-            this.p.animations.play('walk_right', 10, true);
-            this.p.canAttack = false;
-            isCurserDown = true;
-            this.p.attack.isAttacking = false;
-        }
-        if (!isCurserDown) {
-            this.p.animations.currentAnim.stop();
-            if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 4)) {
-                this.p.frameName = "standing-left.png";
-                this.p.canAttack = "true";
+            if (this.cursors.left.isDown || this.leftButton.isPressed) {
+                this.p.body.velocity.x = -2 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+                this.p.animations.play('walk_left', 10, true);
+                this.p.canAttack = false;
+                isCurserDown = true;
+                this.p.attack.isAttacking = false;
             }
-            else if ((this.p.frame >= 16 && this.p.frame < 24) || (this.p.frame >= 4 && this.p.frame < 8)) {
-                this.p.frameName = "standing-right.png";
-                this.p.canAttack = true;
+            else if (this.cursors.right.isDown || this.rightButton.isPressed) {
+                this.p.body.velocity.x = 3 * GAME_CONST.VELOCITY.x[this.p.rpg.x_index];
+                this.p.animations.play('walk_right', 10, true);
+                this.p.canAttack = false;
+                isCurserDown = true;
+                this.p.attack.isAttacking = false;
             }
-        }
+            if (!isCurserDown) {
+                this.p.animations.currentAnim.stop();
+                if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 4)) {
+                    this.p.frameName = "standing-left.png";
+                    this.p.canAttack = "true";
+                }
+                else if ((this.p.frame >= 16 && this.p.frame < 24) || (this.p.frame >= 4 && this.p.frame < 8)) {
+                    this.p.frameName = "standing-right.png";
+                    this.p.canAttack = true;
+                }
+            }
 
-        this._move_dynamic_ramp();
-        if (this.scoreText != null) {
-            this.scoreText.setText(this.coinCount);
+            this._move_dynamic_ramp();
+            if (this.scoreText != null) {
+                this.scoreText.setText(this.coinCount);
+            }
+        } catch (e) {
         }
     },
 
-    _update_attack_sequence(){
+    _update_attack_sequence()
+    {
         let current = new Date().getTime();
         if (this.p.attack != undefined && this.p.attack.isAttacking && current > this.p.attack.since + 500) {
             this.p.attack.isAttacking = false;
