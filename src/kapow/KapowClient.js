@@ -77,17 +77,21 @@ class KapowClient {
     }
 
     handleInvokeRPC(methodName, parameters, invokeLazily, successCallback, failureCallback) {
-        if (invokeLazily) {
-            kapow.rpc.invoke({
-                    "functionName": methodName,
-                    "parameters": parameters,
-                    "invokeLazily": true
-                },
-                successCallback, failureCallback
-            );
-        }
-        else {
-            kapow.invokeRPC(methodName, parameters, successCallback, failureCallback);
+        try {
+            if (invokeLazily) {
+                kapow.rpc.invoke({
+                        "functionName": methodName,
+                        "parameters": parameters,
+                        "invokeLazily": true
+                    },
+                    successCallback, failureCallback
+                );
+            }
+            else {
+                kapow.invokeRPC(methodName, parameters, successCallback, failureCallback);
+            }
+        } catch (error) {
+            console.log("kapow not found" + error);
         }
     }
 
@@ -104,11 +108,19 @@ class KapowClient {
     }
 
     handleStartSoloGame(successCallback, failureCallback) {
-        kapow.startSoloGame(successCallback, failureCallback);
+        try {
+            kapow.startSoloGame(successCallback, failureCallback);
+        } catch (error) {
+            console.log("kapow not found" + error);
+        }
     }
 
     handleEndSoloGame(successCallback, failureCallback) {
-        kapow.endSoloGame(successCallback, failureCallback);
+        try {
+            kapow.endSoloGame(successCallback, failureCallback);
+        } catch (error) {
+            console.log("kapow not found" + error);
+        }
     }
 
     handleFetchHistorySince(messageId, numberOfMessages, successCallback, failureCallback) {

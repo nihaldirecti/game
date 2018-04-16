@@ -394,11 +394,11 @@ Play.prototype = {
             this.p.body.velocity.y = -100;
             this.p.body.velocity.x = -100;
             if (new Date().getTime() > 5000 + this.p.isDeadSince) {
+                gameInfo.collectedCoinsInCurrentSession = this.coinCount;
+                gameInfo.totalCollectedCoins += this.coinCount;
                 this.game.state.start(GAME_CONST.STATES.SHOP);
+                GameManager.endSoloGame();
             }
-            gameInfo.collectedCoinsInCurrentSession = totalCoins;
-            gameInfo.totalCollectedCoins += totalCoins;
-            GameManager.endSoloGame();
             this.gameOverText.setText("GAME OVER!");
             return;
         }
