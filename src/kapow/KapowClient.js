@@ -11,7 +11,7 @@ class KapowClient {
         console.log("onload" + room);
 
         var default_RPG_elements = {
-            health : 1,
+            health : 3,
             x_index : 0,
             y_index : 0,
             fist_index : 0,
@@ -20,7 +20,7 @@ class KapowClient {
         };
         KapowStore.game.get(GAME_CONST.STORE_KEYS.RPG_ELEMENTS, function(value) {
             if (value) {
-                console.log("rps_elements fetch successful" + value);
+                console.log("rpg_elements fetch successful" + value);
                 gameInfo.rpgElements = value;
             } else {
                 console.log("rpg_elements fetch unsuccessful");
@@ -77,17 +77,21 @@ class KapowClient {
     }
 
     handleInvokeRPC(methodName, parameters, invokeLazily, successCallback, failureCallback) {
-        if (invokeLazily) {
-            kapow.rpc.invoke({
-                    "functionName": methodName,
-                    "parameters": parameters,
-                    "invokeLazily": true
-                },
-                successCallback, failureCallback
-            );
-        }
-        else {
-            kapow.invokeRPC(methodName, parameters, successCallback, failureCallback);
+        try {
+            if (invokeLazily) {
+                kapow.rpc.invoke({
+                        "functionName": methodName,
+                        "parameters": parameters,
+                        "invokeLazily": true
+                    },
+                    successCallback, failureCallback
+                );
+            }
+            else {
+                kapow.invokeRPC(methodName, parameters, successCallback, failureCallback);
+            }
+        } catch (error) {
+            console.log("kapow not found" + error);
         }
     }
 
@@ -103,8 +107,20 @@ class KapowClient {
         kapow.rematch(successCallback, failureCallback);
     }
 
+    handleStartSoloGame(successCallback, failureCallback) {
+        try {
+            kapow.startSoloGame(successCallback, failureCallback);
+        } catch (error) {
+            console.log("kapow not found" + error);
+        }
+    }
+
     handleEndSoloGame(successCallback, failureCallback) {
-        kapow.endSoloGame(successCallback, failureCallback);
+        try {
+            kapow.endSoloGame(successCallback, failureCallback);
+        } catch (error) {
+            console.log("kapow not found" + error);
+        }
     }
 
     handleFetchHistorySince(messageId, numberOfMessages, successCallback, failureCallback) {

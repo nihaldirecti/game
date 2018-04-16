@@ -2,6 +2,7 @@
 
 
 import GAME_CONST from "../const/GAME_CONST";
+import GameManager from "../controller/GameManager";
 
 var WebFontConfig = {
     active: function () {
@@ -68,6 +69,7 @@ Preload.prototype = {
         if (this.ready) {
             console.log("Load Complete");
             this.game.state.start(GAME_CONST.STATES.PLAY);
+            GameManager.startSoloGame();
         }
     },
 

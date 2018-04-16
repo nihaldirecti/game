@@ -3,6 +3,7 @@
 import GAME_CONST from "../const/GAME_CONST";
 import PlayButton from "../objects/widgets/buttons/PlayButton";
 import gameInfo from "../objects/Store/GameInfo";
+import GameManager from "../controller/GameManager";
 
 var Play = function () {
 }
@@ -38,7 +39,7 @@ Play.prototype = {
         this.p.rpg = this._getRPGStats();
         this.p.health = this.p.rpg.health;
         this.p.maxHealth = this.p.rpg.health;
-        this.p.attackDamage = this.p.rpg.sword_index;
+        this.p.attackDamage = GAME_CONST.SWORD_DAMAGE[this.p.rpg.sword_index];
         this.enemy = [];
 
         this.game.physics.p2.enable(this.p);
@@ -456,7 +457,10 @@ Play.prototype = {
             this.p.body.velocity.y = -100;
             this.p.body.velocity.x = -100;
             if (new Date().getTime() > 5000 + this.p.isDeadSince) {
+                gameInfo.collectedCoinsInCurrentSession = this.coinCount;
+                gameInfo.totalCollectedCoins += this.coinCount;
                 this.game.state.start(GAME_CONST.STATES.SHOP);
+                GameManager.endSoloGame();
             }
             this.gameOverText.setText("GAME OVER!");
             return;
@@ -763,10 +767,6 @@ Play.prototype = {
 
     _getRPGStats() {
         return gameInfo.rpgElements;
-    },
-
-    _setRPGStats(value) {
-        gameInfo.rpgElements = value;
     }
 };
 export default Play;
