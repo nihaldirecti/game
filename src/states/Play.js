@@ -314,6 +314,10 @@ Play.prototype = {
         if (this.p.isDead) {
             return true;
         }
+
+        if (this.p.attack == undefined) {
+            return;
+        }
         for (let i = 0; i < this.enemy.length; i++) {
             if (this.enemy[i].body != null) {
                 if (this._check_if_collides(this.enemy[i])) {
@@ -490,7 +494,7 @@ Play.prototype = {
             this.p.attack.isAttacking = true;
             this.p.attack.since = new Date().getTime();
         }
-        if (this.p.attack.isAttacking) {
+        if (this.p.attack != undefined && this.p.attack.isAttacking) {
             isCurserDown = true;
             if ((this.p.frame >= 8 && this.p.frame < 16) || (this.p.frame >= 0 && this.p.frame < 3) || this.p.frame === 24) {
                 this.p.animations.play('attack_left', 10, true);
@@ -534,7 +538,7 @@ Play.prototype = {
 
     _update_attack_sequence(){
         let current = new Date().getTime();
-        if (this.p.attack.isAttacking && current > this.p.attack.since + 500) {
+        if (this.p.attack != undefined && this.p.attack.isAttacking && current > this.p.attack.since + 500) {
             this.p.attack.isAttacking = false;
         }
     },
